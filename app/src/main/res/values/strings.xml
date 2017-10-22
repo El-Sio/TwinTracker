@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">TwinTracker</string>
+    <string name="twin1_name">Agathe</string>
+    <string name="twin2_name">Zoé</string>
+    <string name="start">Démarrer</string>
+    <string name="stop">Arrêter</string>
+    <string name="last">Dernière têtée :</string>
+    <string name="prelast">Précédente :</string>
+</resources>
