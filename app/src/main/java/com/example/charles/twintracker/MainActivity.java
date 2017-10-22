@@ -1,6 +1,7 @@
 package com.example.charles.twintracker;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -19,6 +21,7 @@ import java.util.Timer;
 public class MainActivity extends AppCompatActivity {
 
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,bathBttn1,bathBttn2;
+    ImageButton historyBttn;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2,txtBath1,txtBath2;
 
     Timer timer1, timer2;
@@ -27,10 +30,16 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String PREFS_NAME = "lastdata";
 
+    public void displayHistory(View view) {
+        Intent intent = new Intent(this, DisplayHistoryActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        historyBttn = (ImageButton)findViewById(R.id.historybttn);
         strtBttn1 = (Button)findViewById(R.id.start_button_1);
         strtBttn2 = (Button)findViewById(R.id.start_button_2);
         stopBttn1 = (Button)findViewById(R.id.stop_button_1);
@@ -59,10 +68,18 @@ public class MainActivity extends AppCompatActivity {
         txtPreLast1.setText(settings.getString("prelast1",""));
         txtPreLast2.setText(settings.getString("prelast2",""));
 
-        txtBath1.setText(settings.getString("lastbath1",""));
-        txtBath2.setText(settings.getString("lastbath2",""));
+        txtBath1.setText(settings.getString("lastBath1",""));
+        txtBath2.setText(settings.getString("lastBath2",""));
 
         final SharedPreferences.Editor editor = settings.edit();
+
+        historyBttn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                displayHistory(v);
+            }
+        });
 
         bathBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,6 +149,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
+                                    editor.putString("last16", settings.getString("last15",""));
+                                    editor.putString("last15", settings.getString("last14",""));
+                                    editor.putString("last14", settings.getString("last13",""));
+                                    editor.putString("last13", settings.getString("prelast1",""));
                                     editor.putString("prelast1", settings.getString("last1",""));
                                     editor.apply();
                                     editor.putString("last1",txtCurrentCount1.getText().toString()+"  "+txtCurrentDuration1.getText().toString());
@@ -168,6 +189,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
+                                    editor.putString("last26", settings.getString("last25",""));
+                                    editor.putString("last25", settings.getString("last24",""));
+                                    editor.putString("last24", settings.getString("last23",""));
+                                    editor.putString("last23", settings.getString("prelast2",""));
                                     editor.putString("prelast2", settings.getString("last2",""));
                                     editor.apply();
                                     editor.putString("last2",txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString());
