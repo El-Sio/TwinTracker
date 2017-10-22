@@ -11,14 +11,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.TimerTask;
 
 import java.util.Timer;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2;
-    TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2;
+    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,bathBttn1,bathBttn2;
+    TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2,txtBath1,txtBath2;
 
     Timer timer1, timer2;
 
@@ -34,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
         strtBttn2 = (Button)findViewById(R.id.start_button_2);
         stopBttn1 = (Button)findViewById(R.id.stop_button_1);
         stopBttn2 = (Button)findViewById(R.id.stop_button_2);
+        bathBttn1 = (Button)findViewById(R.id.bath_button_1);
+        bathBttn2 = (Button)findViewById(R.id.bath_button_2);
+
         txtCurrentCount1 = (TextView)findViewById(R.id.current_timer_1);
         txtCurrentCount2 = (TextView)findViewById(R.id.current_timer_2);
         txtLastDate1 = (TextView)findViewById(R.id.last1_time);
@@ -41,10 +45,13 @@ public class MainActivity extends AppCompatActivity {
         txtPreLast1 = (TextView)findViewById(R.id.prelast1_time);
         txtPreLast2 = (TextView)findViewById(R.id.prelast2_time);
 
+        txtBath1 = (TextView)findViewById(R.id.bath_timer_1);
+        txtBath2 = (TextView)findViewById(R.id.bath_timer_2);
+
         txtCurrentDuration1 = (TextView)findViewById(R.id.current_duration_1);
         txtCurrentDuration2 = (TextView)findViewById(R.id.current_duration_2);
 
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
         txtLastDate1.setText(settings.getString("last1",""));
         txtLastDate2.setText(settings.getString("last2",""));
@@ -52,7 +59,36 @@ public class MainActivity extends AppCompatActivity {
         txtPreLast1.setText(settings.getString("prelast1",""));
         txtPreLast2.setText(settings.getString("prelast2",""));
 
+        txtBath1.setText(settings.getString("lastbath1",""));
+        txtBath2.setText(settings.getString("lastbath2",""));
+
         final SharedPreferences.Editor editor = settings.edit();
+
+        bathBttn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                final String strdate = simpleDateFormat.format(calendar.getTime());
+                editor.putString("lastBath1", strdate);
+                editor.apply();
+                txtBath1.setText(strdate);
+            }
+        });
+
+        bathBttn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                final String strdate = simpleDateFormat.format(calendar.getTime());
+                editor.putString("lastBath2", strdate);
+                editor.apply();
+                txtBath2.setText(strdate);
+            }
+        });
 
         strtBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
