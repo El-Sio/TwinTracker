@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 import java.util.TimerTask;
 
 import java.util.Timer;
@@ -30,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String PREFS_NAME = "lastdata";
 
-    public static boolean ongoing1,ongoing2;
+    public static boolean ongoing1,ongoing2,isstopped1,isstopped2;
     public static long started1,started2;
 
     public void displayHistory(View view) {
@@ -159,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if(timer1 != null) {
                     timer1.cancel();
+                    timer1 = null;
                 }
 
             }
@@ -167,8 +167,10 @@ public class MainActivity extends AppCompatActivity {
         bathBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if(timer2 != null) {
                     timer2.cancel();
+                    timer2 = null;
                 }
             }
         });
@@ -240,6 +242,42 @@ public class MainActivity extends AppCompatActivity {
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                 }
+                else {
+
+                    AlertDialog.Builder builder;
+                    builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Enregister")
+                            .setMessage("La têtée est terminée ?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+
+
+                                    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+
+                                    editor.putString("last16", settings.getString("last15",""));
+                                    editor.putString("last15", settings.getString("last14",""));
+                                    editor.putString("last14", settings.getString("last13",""));
+                                    editor.putString("last13", settings.getString("prelast1",""));
+                                    editor.putString("prelast1", settings.getString("last1",""));
+                                    editor.apply();
+                                    editor.putString("last1",txtCurrentCount1.getText().toString()+"  "+txtCurrentDuration1.getText().toString());
+                                    editor.apply();
+
+                                    txtLastDate1.setText(settings.getString("last1",""));
+                                    txtPreLast1.setText(settings.getString("prelast1",""));
+                                    txtCurrentCount1.setText("");
+                                    txtCurrentDuration1.setText("");
+
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
             }
         });
 
@@ -257,6 +295,39 @@ public class MainActivity extends AppCompatActivity {
 
                                     timer2.cancel();
                                     timer2 = null;
+
+                                    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+
+                                    editor.putString("last26", settings.getString("last25",""));
+                                    editor.putString("last25", settings.getString("last24",""));
+                                    editor.putString("last24", settings.getString("last23",""));
+                                    editor.putString("last23", settings.getString("prelast2",""));
+                                    editor.putString("prelast2", settings.getString("last2",""));
+                                    editor.apply();
+                                    editor.putString("last2",txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString());
+                                    editor.apply();
+
+                                    txtLastDate2.setText(settings.getString("last2",""));
+                                    txtPreLast2.setText(settings.getString("prelast2",""));
+                                    txtCurrentCount2.setText("");
+                                    txtCurrentDuration2.setText("");
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
+                else {
+                    AlertDialog.Builder builder;
+                    builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Enregister")
+                            .setMessage("La têtée est terminée ?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
 
                                     SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
