@@ -38,6 +38,25 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if(this.isFinishing()) {
+            System.out.println("Dying");
+            final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+            final SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("ongoing1", false);
+            editor.putBoolean("ongoing2", false);
+            editor.apply();
+        }
+        else {
+            System.out.println("Not Dying");
+        }
+
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
