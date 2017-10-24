@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,bathBttn1,bathBttn2;
     ImageButton historyBttn;
-    TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2,txtBath1,txtBath2;
+    TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2;
 
     Timer timer1, timer2;
 
@@ -131,9 +131,6 @@ public class MainActivity extends AppCompatActivity {
         txtPreLast1 = (TextView)findViewById(R.id.prelast1_time);
         txtPreLast2 = (TextView)findViewById(R.id.prelast2_time);
 
-        txtBath1 = (TextView)findViewById(R.id.bath_timer_1);
-        txtBath2 = (TextView)findViewById(R.id.bath_timer_2);
-
         txtCurrentDuration1 = (TextView)findViewById(R.id.current_duration_1);
         txtCurrentDuration2 = (TextView)findViewById(R.id.current_duration_2);
 
@@ -145,8 +142,6 @@ public class MainActivity extends AppCompatActivity {
         txtPreLast1.setText(settings.getString("prelast1",""));
         txtPreLast2.setText(settings.getString("prelast2",""));
 
-        txtBath1.setText(settings.getString("lastBath1",""));
-        txtBath2.setText(settings.getString("lastBath2",""));
 
         final SharedPreferences.Editor editor = settings.edit();
 
@@ -162,25 +157,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Calendar calendar = Calendar.getInstance();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEEE", Locale.FRANCE);
-                final String strdate = simpleDateFormat.format(calendar.getTime());
-                editor.putString("lastBath1", strdate);
-                editor.apply();
-                txtBath1.setText(strdate);
+                if(timer1 != null) {
+                    timer1.cancel();
+                }
+
             }
         });
 
         bathBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Calendar calendar = Calendar.getInstance();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEEE", Locale.FRANCE);
-                final String strdate = simpleDateFormat.format(calendar.getTime());
-                editor.putString("lastBath2", strdate);
-                editor.apply();
-                txtBath2.setText(strdate);
+                if(timer2 != null) {
+                    timer2.cancel();
+                }
             }
         });
 
