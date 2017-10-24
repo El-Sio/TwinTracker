@@ -3,7 +3,6 @@ package com.example.charles.twintracker;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -30,14 +30,72 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String PREFS_NAME = "lastdata";
 
+    public static boolean ongoing1,ongoing2;
+    public static long started1,started2;
+
     public void displayHistory(View view) {
         Intent intent = new Intent(this, DisplayHistoryActivity.class);
         startActivity(intent);
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        final SharedPreferences.Editor editor = settings.edit();
+        if(timer1!=null) {
+            started1 = twinTimerTask1.getStartTime();
+            ongoing1 = true;
+            editor.putBoolean("ongoing1",true);
+            editor.apply();
+        }
+        if(timer1 == null) {
+            ongoing1 = false;
+            editor.putBoolean("ongoing1", false);
+            editor.apply();
+        }
+        if(timer2!=null) {
+            ongoing2 = true;
+            editor.putBoolean("ongoing2",true);
+            editor.apply();
+            started2 = twinTimerTask2.getStartTime();
+        }
+        if(timer2 == null) {
+            ongoing2 = false;
+            editor.putBoolean("ongoing2", false);
+            editor.apply();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        ongoing1 = settings.getBoolean("ongoing1",false);
+        ongoing2 = settings.getBoolean("ongoing2", false);
+        if(ongoing1) {
+            if(timer1==null) {
+                timer1 = new Timer();
+                twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1, started1);
+                timer1.schedule(twinTimerTask1, 1000, 1000);
+            }
+
+        }
+        if(ongoing2) {
+            if(timer2==null) {
+                timer2 = new Timer();
+                twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2, started2);
+                timer2.schedule(twinTimerTask2, 1000, 1000);
+            }
+        }
+
+        }
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         historyBttn = (ImageButton)findViewById(R.id.historybttn);
         strtBttn1 = (Button)findViewById(R.id.start_button_1);
@@ -137,8 +195,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (timer1!=null) {
-                    timer1.cancel();
-                    timer1 = null;
 
                     AlertDialog.Builder builder;
                     builder = new AlertDialog.Builder(MainActivity.this);
@@ -146,6 +202,9 @@ public class MainActivity extends AppCompatActivity {
                             .setMessage("La têtée est terminée ?")
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
+
+                                    timer1.cancel();
+                                    timer1 = null;
 
                                     SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
@@ -160,6 +219,9 @@ public class MainActivity extends AppCompatActivity {
 
                                     txtLastDate1.setText(settings.getString("last1",""));
                                     txtPreLast1.setText(settings.getString("prelast1",""));
+                                    txtCurrentCount1.setText("");
+                                    txtCurrentDuration1.setText("");
+
                                 }
                             })
                             .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -177,8 +239,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (timer2!=null) {
-                    timer2.cancel();
-                    timer2 = null;
 
                     AlertDialog.Builder builder;
                     builder = new AlertDialog.Builder(MainActivity.this);
@@ -186,6 +246,9 @@ public class MainActivity extends AppCompatActivity {
                             .setMessage("La têtée est terminée ?")
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
+
+                                    timer2.cancel();
+                                    timer2 = null;
 
                                     SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 
@@ -200,6 +263,8 @@ public class MainActivity extends AppCompatActivity {
 
                                     txtLastDate2.setText(settings.getString("last2",""));
                                     txtPreLast2.setText(settings.getString("prelast2",""));
+                                    txtCurrentCount2.setText("");
+                                    txtCurrentDuration2.setText("");
                                 }
                             })
                             .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -215,20 +280,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    class TwinTimerTask extends TimerTask {
+    private class TwinTimerTask extends TimerTask {
 
         TextView refTxtView1, refTxtView2;
-        int secondes = 0;
-        int minutes =0;
+        public long startTime;
+
+
+        public TwinTimerTask(TextView refTxtView1, TextView refTxtView2, long startTime) {
+            this.refTxtView1 = refTxtView1;
+            this.refTxtView2 = refTxtView2;
+            this.startTime = startTime;
+        }
 
         public TwinTimerTask(TextView refTxtView1, TextView refTxtView2) {
 
             this.refTxtView1 = refTxtView1;
             this.refTxtView2 = refTxtView2;
+            startTime = System.currentTimeMillis();
+
+        }
+
+        public long getStartTime() {
+            return startTime;
         }
 
         @Override
         public void run() {
+
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
             final String strdate = simpleDateFormat.format(calendar.getTime());
@@ -237,15 +315,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
 
-                    secondes +=1;
-                    if(secondes == 60) {
-                        minutes +=1;
-                        secondes = 0;
-                    }
 
-                    String timertext = "("+minutes + " : " + secondes+")";
-
-                    refTxtView2.setText(timertext);
+                    long elapsed = System.currentTimeMillis()- startTime;
+                    long seconds = elapsed/1000;
+                    long s = seconds % 60;
+                    long m = (seconds / 60) % 60;
+                    long h = (seconds / (60 * 60)) % 24;
+                    String timertext = String.format("%d:%02d:%02d", h,m,s);
+                    refTxtView2.setText("("+timertext+")");
                     refTxtView1.setText(strdate);
                 }
             });
