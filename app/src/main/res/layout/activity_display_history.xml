@@ -20,6 +20,18 @@
         android:background="@mipmap/ic_download"
         />
 
+    <ImageButton
+        android:id="@+id/uploadBttn"
+        android:onClick="uploadClickHandler"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@+id/downloadBttn"
+        app:layout_constraintRight_toLeftOf="@+id/downloadBttn"
+        android:layout_marginRight="20dp"
+        android:src="@mipmap/ic_upload"
+        android:background="@mipmap/ic_upload"
+        />
+
     <ListView
         app:layout_constraintTop_toBottomOf="@+id/downloadBttn"
         android:id="@+id/listview"
