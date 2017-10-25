@@ -90,8 +90,8 @@ public class DisplayHistoryActivity extends AppCompatActivity {
                 public void onResult(JSONObject object) {
                     processJson(object);
                 }
-            }).execute("https://spreadsheets.google.com/tq?key=1zccFXSWEoHmroT8jbOqNuIvWzSj4F9yIFKJ2thvXc2Y");
-
+        //    }).execute("https://spreadsheets.google.com/tq?key=1zccFXSWEoHmroT8jbOqNuIvWzSj4F9yIFKJ2thvXc2Y");
+            }).execute("http://japansio.info/api/data2");
         }
 
         private void processJson(JSONObject object) {
