@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimerTask;
 
 import java.util.Timer;
@@ -30,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String PREFS_NAME = "lastdata";
 
     public static boolean ongoing1,ongoing2,isstopped1,isstopped2;
-    public static long started1,started2;
+    public static String started1,started2;
+    public static long starttime1, starttime2;
 
     public void displayHistory(View view) {
         Intent intent = new Intent(this, DisplayHistoryActivity.class);
@@ -62,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         final SharedPreferences.Editor editor = settings.edit();
         if(timer1!=null) {
-            started1 = twinTimerTask1.getStartTime();
+            started1 = twinTimerTask1.getStartDate();
+            starttime1 = twinTimerTask1.getStartTime();
             ongoing1 = true;
             editor.putBoolean("ongoing1",true);
             editor.apply();
@@ -76,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
             ongoing2 = true;
             editor.putBoolean("ongoing2",true);
             editor.apply();
-            started2 = twinTimerTask2.getStartTime();
+            started2 = twinTimerTask2.getStartDate();
+            starttime2 = twinTimerTask2.getStartTime();
         }
         if(timer2 == null) {
             ongoing2 = false;
@@ -94,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         if(ongoing1) {
             if(timer1==null) {
                 timer1 = new Timer();
-                twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1, started1);
+                twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1, starttime1 ,started1);
                 timer1.schedule(twinTimerTask1, 1000, 1000);
             }
 
@@ -102,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         if(ongoing2) {
             if(timer2==null) {
                 timer2 = new Timer();
-                twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2, started2);
+                twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2,starttime2 ,started2);
                 timer2.schedule(twinTimerTask2, 1000, 1000);
             }
         }
@@ -363,12 +367,14 @@ public class MainActivity extends AppCompatActivity {
 
         TextView refTxtView1, refTxtView2;
         public long startTime;
+        public String startDate;
 
 
-        public TwinTimerTask(TextView refTxtView1, TextView refTxtView2, long startTime) {
+        public TwinTimerTask(TextView refTxtView1, TextView refTxtView2, long startTime, String startDate) {
             this.refTxtView1 = refTxtView1;
             this.refTxtView2 = refTxtView2;
             this.startTime = startTime;
+            this.startDate = startDate;
         }
 
         public TwinTimerTask(TextView refTxtView1, TextView refTxtView2) {
@@ -376,6 +382,9 @@ public class MainActivity extends AppCompatActivity {
             this.refTxtView1 = refTxtView1;
             this.refTxtView2 = refTxtView2;
             startTime = System.currentTimeMillis();
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+            startDate = simpleDateFormat.format(calendar.getTime());
 
         }
 
@@ -383,12 +392,10 @@ public class MainActivity extends AppCompatActivity {
             return startTime;
         }
 
+        public String getStartDate() {return startDate;}
+
         @Override
         public void run() {
-
-            Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-            final String strdate = simpleDateFormat.format(calendar.getTime());
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -402,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                     long h = (seconds / (60 * 60)) % 24;
                     String timertext = String.format("%d:%02d:%02d", h,m,s);
                     refTxtView2.setText("("+timertext+")");
-                    refTxtView1.setText(strdate);
+                    refTxtView1.setText(startDate);
                 }
             });
         }
