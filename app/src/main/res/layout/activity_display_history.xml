@@ -23,6 +23,11 @@
     <ListView
         app:layout_constraintTop_toBottomOf="@+id/downloadBttn"
         android:id="@+id/listview"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:textAlignment="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
