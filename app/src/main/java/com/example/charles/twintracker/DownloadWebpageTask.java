@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +43,9 @@ import java.net.URL;
             int start = result.indexOf("{", result.indexOf("{") + 1);
             int end = result.lastIndexOf("}");
             String jsonResponse = result.substring(start, end);
+
+            System.out.println(jsonResponse);
+
             try {
                 JSONObject table = new JSONObject(jsonResponse);
                 callback.onResult(table);

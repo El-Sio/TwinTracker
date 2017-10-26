@@ -63,7 +63,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
                 public void onResult(JSONObject object) {
                     processJson(object);
                 }
-        //    }).execute("https://spreadsheets.google.com/tq?key=1zccFXSWEoHmroT8jbOqNuIvWzSj4F9yIFKJ2thvXc2Y");
+           // }).execute("http://japansio.info/api/myTextFile.txt");
             }).execute("http://japansio.info/api/data2");
         }
 
@@ -82,6 +82,17 @@ public class DisplayHistoryActivity extends AppCompatActivity {
                     feedings.add(new feeding(name,start,duration));
                 }
 
+/*                try {
+                    JSONArray rows = new JSONArray(object);
+
+                    for(int r=0; r< rows.length(); ++r) {
+                        JSONObject row = rows.getJSONObject(r);
+                        String name = row.getString("name");
+                        String duration = row.getString("duration");
+                        String start = row.getString("start");
+                        feedings.add(new feeding(name,start,duration));
+                    }
+*/
                 final FeedingsAdapter adapter = new FeedingsAdapter(this, R.layout.feeding, feedings);
                 listview.setAdapter(adapter);
 
