@@ -1,8 +1,11 @@
 package com.example.charles.twintracker;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,9 +14,15 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimerTask;
 
 import java.util.Timer;
@@ -24,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     ImageButton historyBttn;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2;
 
+    ArrayList<feeding> feedings;
     Timer timer1, timer2;
 
     TwinTimerTask twinTimerTask1, twinTimerTask2;
@@ -114,9 +124,59 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    private void processJson(JSONArray object) {
+
+        try {
+
+            for(int r=0; r< object.length(); ++r) {
+                JSONObject row = object.getJSONObject(r);
+                String name = row.getString("name");
+                String duration = row.getString("duration");
+                String start = row.getString("start");
+                feedings.add(new feeding(name,start,duration));
+            }
+
+            String a1 = "";
+            String a2 = "";
+            int f = feedings.size();
+            for(int j =0; j<f; j++)
+            {
+                if(feedings.get(j).getName().equals("agathe")) {
+                    a2 = a1;
+                    a1 = feedings.get(j).getStart() + feedings.get(j).getDuration();
+                    System.out.println(a1);
+
+                }
+            }
+            System.out.println("agathe : " + a1);
+
+            txtLastDate1.setText(a1);
+            txtPreLast1.setText(a2);
+
+            String z1 = "";
+            String z2 = "";
+            for(int j =0; j<f; j++)
+            {
+                if(feedings.get(j).getName().equals("zoé")) {
+                    z2 = z1;
+                    z1 = feedings.get(j).getStart() + feedings.get(j).getDuration();
+
+                }
+            }
+
+            txtLastDate2.setText(z1);
+            txtPreLast2.setText(z2);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        feedings = new ArrayList<>();
 
         setContentView(R.layout.activity_main);
         historyBttn = (ImageButton)findViewById(R.id.historybttn);
@@ -137,16 +197,14 @@ public class MainActivity extends AppCompatActivity {
         txtCurrentDuration1 = (TextView)findViewById(R.id.current_duration_1);
         txtCurrentDuration2 = (TextView)findViewById(R.id.current_duration_2);
 
-        final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        new DownloadWebpageTask(new AsyncResult() {
+            @Override
+            public void onResult(JSONArray object) {
+                processJson(object);
 
-        txtLastDate1.setText(settings.getString("last1",""));
-        txtLastDate2.setText(settings.getString("last2",""));
+            }
+        }).execute("http://japansio.info/api/feedings.json");
 
-        txtPreLast1.setText(settings.getString("prelast1",""));
-        txtPreLast2.setText(settings.getString("prelast2",""));
-
-
-        final SharedPreferences.Editor editor = settings.edit();
 
         historyBttn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -219,20 +277,15 @@ public class MainActivity extends AppCompatActivity {
 
                                     timer1.cancel();
                                     timer1 = null;
+                                    txtPreLast1.setText(txtLastDate1.getText());
+                                    txtLastDate1.setText(txtCurrentCount1.getText().toString()+"  "+txtCurrentDuration1.getText().toString());
 
-                                    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                                    feedings.add(new feeding("agathe",txtCurrentCount1.getText().toString(),txtCurrentDuration1.getText().toString()));
+                                    String json = new Gson().toJson(feedings);
 
-                                    editor.putString("last16", settings.getString("last15",""));
-                                    editor.putString("last15", settings.getString("last14",""));
-                                    editor.putString("last14", settings.getString("last13",""));
-                                    editor.putString("last13", settings.getString("prelast1",""));
-                                    editor.putString("prelast1", settings.getString("last1",""));
-                                    editor.apply();
-                                    editor.putString("last1",txtCurrentCount1.getText().toString()+"  "+txtCurrentDuration1.getText().toString());
-                                    editor.apply();
+                                    System.out.println(json);
+                                    new UploadDataTask().execute("http://japansio.info/api/putdata.php",json);
 
-                                    txtLastDate1.setText(settings.getString("last1",""));
-                                    txtPreLast1.setText(settings.getString("prelast1",""));
                                     txtCurrentCount1.setText("");
                                     txtCurrentDuration1.setText("");
 
@@ -255,20 +308,15 @@ public class MainActivity extends AppCompatActivity {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
 
+                                    txtPreLast1.setText(txtLastDate1.getText());
+                                    txtLastDate1.setText(txtCurrentCount1.getText().toString()+"  "+txtCurrentDuration1.getText().toString());
 
-                                    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                                    feedings.add(new feeding("agathe",txtCurrentCount1.getText().toString(),txtCurrentDuration1.getText().toString()));
+                                    String json = new Gson().toJson(feedings);
 
-                                    editor.putString("last16", settings.getString("last15",""));
-                                    editor.putString("last15", settings.getString("last14",""));
-                                    editor.putString("last14", settings.getString("last13",""));
-                                    editor.putString("last13", settings.getString("prelast1",""));
-                                    editor.putString("prelast1", settings.getString("last1",""));
-                                    editor.apply();
-                                    editor.putString("last1",txtCurrentCount1.getText().toString()+"  "+txtCurrentDuration1.getText().toString());
-                                    editor.apply();
+                                    System.out.println(json);
+                                    new UploadDataTask().execute("http://japansio.info/api/putdata.php",json);
 
-                                    txtLastDate1.setText(settings.getString("last1",""));
-                                    txtPreLast1.setText(settings.getString("prelast1",""));
                                     txtCurrentCount1.setText("");
                                     txtCurrentDuration1.setText("");
 
@@ -300,19 +348,15 @@ public class MainActivity extends AppCompatActivity {
                                     timer2.cancel();
                                     timer2 = null;
 
-                                    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                                    txtPreLast2.setText(txtLastDate2.getText());
+                                    txtLastDate2.setText(txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString());
 
-                                    editor.putString("last26", settings.getString("last25",""));
-                                    editor.putString("last25", settings.getString("last24",""));
-                                    editor.putString("last24", settings.getString("last23",""));
-                                    editor.putString("last23", settings.getString("prelast2",""));
-                                    editor.putString("prelast2", settings.getString("last2",""));
-                                    editor.apply();
-                                    editor.putString("last2",txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString());
-                                    editor.apply();
+                                    feedings.add(new feeding("zoé",txtCurrentCount2.getText().toString(),txtCurrentDuration2.getText().toString()));
+                                    String json = new Gson().toJson(feedings);
 
-                                    txtLastDate2.setText(settings.getString("last2",""));
-                                    txtPreLast2.setText(settings.getString("prelast2",""));
+                                    System.out.println(json);
+                                    new UploadDataTask().execute("http://japansio.info/api/putdata.php",json);
+
                                     txtCurrentCount2.setText("");
                                     txtCurrentDuration2.setText("");
                                 }
@@ -333,19 +377,15 @@ public class MainActivity extends AppCompatActivity {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
 
-                                    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                                    txtPreLast2.setText(txtLastDate2.getText());
+                                    txtLastDate2.setText(txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString());
 
-                                    editor.putString("last26", settings.getString("last25",""));
-                                    editor.putString("last25", settings.getString("last24",""));
-                                    editor.putString("last24", settings.getString("last23",""));
-                                    editor.putString("last23", settings.getString("prelast2",""));
-                                    editor.putString("prelast2", settings.getString("last2",""));
-                                    editor.apply();
-                                    editor.putString("last2",txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString());
-                                    editor.apply();
+                                    feedings.add(new feeding("zoé",txtCurrentCount2.getText().toString(),txtCurrentDuration2.getText().toString()));
+                                    String json = new Gson().toJson(feedings);
 
-                                    txtLastDate2.setText(settings.getString("last2",""));
-                                    txtPreLast2.setText(settings.getString("prelast2",""));
+                                    System.out.println(json);
+                                    new UploadDataTask().execute("http://japansio.info/api/putdata.php",json);
+
                                     txtCurrentCount2.setText("");
                                     txtCurrentDuration2.setText("");
                                 }

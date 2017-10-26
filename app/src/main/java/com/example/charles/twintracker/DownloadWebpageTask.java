@@ -2,6 +2,7 @@ package com.example.charles.twintracker;
 
 import android.os.AsyncTask;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,15 +40,11 @@ import java.net.URL;
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            // remove the unnecessary parts from the response and construct a JSON
-            int start = result.indexOf("{", result.indexOf("{") + 1);
-            int end = result.lastIndexOf("}");
-            String jsonResponse = result.substring(start, end);
 
-            System.out.println(jsonResponse);
+            System.out.println(result);
 
             try {
-                JSONObject table = new JSONObject(jsonResponse);
+                JSONArray table = new JSONArray(result);
                 callback.onResult(table);
             } catch (JSONException e) {
                 e.printStackTrace();

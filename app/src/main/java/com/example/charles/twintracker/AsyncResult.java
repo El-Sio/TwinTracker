@@ -1,5 +1,6 @@
 package com.example.charles.twintracker;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -8,5 +9,5 @@ import org.json.JSONObject;
 
 interface AsyncResult
 {
-    void onResult(JSONObject object);
+    void onResult(JSONArray object);
 }

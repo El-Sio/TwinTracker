@@ -32,7 +32,6 @@ public class DisplayHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display_history);
 
         btnDownload = (ImageButton) findViewById(R.id.downloadBttn);
-        btnUpload = (ImageButton)findViewById(R.id.uploadBttn);
 
         listview = (ListView)findViewById(R.id.listview);
 
@@ -44,55 +43,47 @@ public class DisplayHistoryActivity extends AppCompatActivity {
             btnDownload.setEnabled(false);
         }
 
+        new DownloadWebpageTask(new AsyncResult() {
+            @Override
+            public void onResult(JSONArray object) {
+                processJson(object);
+            }
+        }).execute("http://japansio.info/api/feedings.json");
+
     }
 
-    public  void uploadClickHandler (View view) {
+/*    public  void uploadClickHandler (View view) {
 
         String json = new Gson().toJson(feedings);
 
         System.out.println(json);
-        new UploadDataTask().execute("http://japansio.info/api/putdata.php","data="+json);
+        new UploadDataTask().execute("http://japansio.info/api/putdata.php",json);
     }
-
+*/
         public void buttonClickHandler(View view) {
 
             feedings.clear();
 
             new DownloadWebpageTask(new AsyncResult() {
                 @Override
-                public void onResult(JSONObject object) {
+                public void onResult(JSONArray object) {
                     processJson(object);
                 }
-           // }).execute("http://japansio.info/api/myTextFile.txt");
-            }).execute("http://japansio.info/api/data2");
+            }).execute("http://japansio.info/api/feedings.json");
         }
 
-        private void processJson(JSONObject object) {
+        private void processJson(JSONArray object) {
 
-            try {
-                JSONArray rows = object.getJSONArray("rows");
+                try {
 
-                for (int r = 0; r < rows.length(); ++r) {
-                    JSONObject row = rows.getJSONObject(r);
-                    JSONArray columns = row.getJSONArray("c");
-
-                    String name = columns.getJSONObject(0).getString("v");
-                    String start = columns.getJSONObject(1).getString("v");
-                    String duration = columns.getJSONObject(2).getString("v");
-                    feedings.add(new feeding(name,start,duration));
-                }
-
-/*                try {
-                    JSONArray rows = new JSONArray(object);
-
-                    for(int r=0; r< rows.length(); ++r) {
-                        JSONObject row = rows.getJSONObject(r);
+                    for(int r=0; r< object.length(); ++r) {
+                        JSONObject row = object.getJSONObject(r);
                         String name = row.getString("name");
                         String duration = row.getString("duration");
                         String start = row.getString("start");
                         feedings.add(new feeding(name,start,duration));
                     }
-*/
+
                 final FeedingsAdapter adapter = new FeedingsAdapter(this, R.layout.feeding, feedings);
                 listview.setAdapter(adapter);
 
