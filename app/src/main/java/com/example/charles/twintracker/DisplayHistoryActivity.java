@@ -9,8 +9,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
-import com.google.gson.Gson;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,14 +18,14 @@ import java.util.ArrayList;
 public class DisplayHistoryActivity extends AppCompatActivity {
 
     ArrayList<feeding> feedings;
-    ImageButton btnDownload,btnUpload;
+    ImageButton btnDownload;
     ListView listview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        feedings = new ArrayList<feeding>();
+        feedings = new ArrayList<>();
 
         setContentView(R.layout.activity_display_history);
 
@@ -52,14 +50,6 @@ public class DisplayHistoryActivity extends AppCompatActivity {
 
     }
 
-/*    public  void uploadClickHandler (View view) {
-
-        String json = new Gson().toJson(feedings);
-
-        System.out.println(json);
-        new UploadDataTask().execute("http://japansio.info/api/putdata.php",json);
-    }
-*/
         public void buttonClickHandler(View view) {
 
             feedings.clear();

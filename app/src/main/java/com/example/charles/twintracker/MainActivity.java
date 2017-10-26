@@ -1,11 +1,9 @@
 package com.example.charles.twintracker;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String PREFS_NAME = "lastdata";
 
-    public static boolean ongoing1,ongoing2,isstopped1,isstopped2;
+    public static boolean ongoing1,ongoing2;
     public static String started1,started2;
     public static long starttime1, starttime2;
 
@@ -55,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
 
         if(this.isFinishing()) {
-            System.out.println("Dying");
+            //Dying System.out.println("Dying");
             final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
             final SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean("ongoing1", false);
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
         }
         else {
-            System.out.println("Not Dying");
+            // Not Dying System.out.println("Not Dying");
         }
 
     }
@@ -144,12 +142,9 @@ public class MainActivity extends AppCompatActivity {
                 if(feedings.get(j).getName().equals("agathe")) {
                     a2 = a1;
                     a1 = feedings.get(j).getStart() + feedings.get(j).getDuration();
-                    System.out.println(a1);
 
                 }
             }
-            System.out.println("agathe : " + a1);
-
             txtLastDate1.setText(a1);
             txtPreLast1.setText(a2);
 

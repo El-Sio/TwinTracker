@@ -16,12 +16,11 @@ public class UploadDataTask extends AsyncTask <String, String, String> {
 
     @Override
     protected String doInBackground(String... params) {
-        // TODO Auto-generated method stub
         try {
             postData(params[0],params[1]);
-            System.out.println("post successfull");
+         //   System.out.println("post successfull");
         } catch (IOException e) {
-            System.out.println("post request failed");
+        //    System.out.println("post request failed");
             e.printStackTrace();
         }
         return "done";
@@ -44,9 +43,5 @@ public class UploadDataTask extends AsyncTask <String, String, String> {
         try( DataOutputStream wr = new DataOutputStream( conn.getOutputStream())) {
             wr.write( postData );
         }
-
-        System.out.println(conn.getResponseCode());
-
-        return;
     }
 }
