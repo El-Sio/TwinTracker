@@ -14,6 +14,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class DisplayHistoryActivity extends AppCompatActivity {
 
@@ -74,6 +76,12 @@ public class DisplayHistoryActivity extends AppCompatActivity {
                         feedings.add(new feeding(name,start,duration));
                     }
 
+                    Collections.sort(feedings, new Comparator<feeding>() {
+                        @Override
+                        public int compare(feeding f1, feeding f2) {
+                            return f2.getStart().compareTo(f1.getStart());
+                        }
+                    });
                 final FeedingsAdapter adapter = new FeedingsAdapter(this, R.layout.feeding, feedings);
                 listview.setAdapter(adapter);
 
