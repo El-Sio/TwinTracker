@@ -54,53 +54,33 @@ public class DisplayHistoryActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // If the nav drawer is open, hide action items related to the content view
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
         return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // The action bar home/up action should open or close the drawer.
-        // ActionBarDrawerToggle will take care of this.
 
-        if(item.getItemId() == R.id.action_sync)
+        switch (item.getItemId())
         {
-            feedings.clear();
+            case R.id.action_sync: {
+                feedings.clear();
 
-            new DownloadWebpageTask(new AsyncResult() {
-                @Override
-                public void onResult(JSONArray object) {
-                    processJson(object);
-                }
-            }).execute("http://japansio.info/api/feedings.json");
-        }
-        return true;
-    }
-
-    /* The click listner for ListView in the navigation drawer */
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectItem(position);
-            if(position==0) {
-                displayHome(view);
+                new DownloadWebpageTask(new AsyncResult() {
+                    @Override
+                    public void onResult(JSONArray object) {
+                        processJson(object);
+                    }
+                }).execute("http://japansio.info/api/feedings.json");
+                return true;
             }
+            case R.id.home: {
+                displayHome(findViewById(R.id.home));
+                return true;
+            }
+            default:return super.onOptionsItemSelected(item);
         }
     }
 
-    private void selectItem(int position) {
-
-
-        // update selected item and title, then close the drawer
-        mDrawerList.setItemChecked(position, true);
-        setTitle(mPlanetTitles[position]);
-        mDrawerLayout.closeDrawer(mDrawerList);
-    }
-
-    @Override
-    public void setTitle(CharSequence title) {
-        mTitle = title;
-    }
 
     /* Menu Tests */
 
@@ -121,47 +101,13 @@ public class DisplayHistoryActivity extends AppCompatActivity {
         /* Menu Tests */
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.child_toolbar);
-        ActionBarDrawerToggle mDrawerToggle;
 
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
 
-        mTitle = mDrawerTitle = getTitle();
-        mPlanetTitles = new String[]{"Accueil", "Historique"};
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-
-
-        // set up the drawer's list view with items and click listener
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, mPlanetTitles));
-        mDrawerList.setOnItemClickListener(new DisplayHistoryActivity.DrawerItemClickListener());
-
         if (actionBar != null)
         {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close)
-            {
-
-                public void onDrawerClosed(View view)
-                {
-                    supportInvalidateOptionsMenu();
-                    //drawerOpened = false;
-                }
-
-                public void onDrawerOpened(View drawerView)
-                {
-                    supportInvalidateOptionsMenu();
-                    //drawerOpened = true;
-                }
-            };
-            mDrawerToggle.setDrawerIndicatorEnabled(true);
-            mDrawerLayout.setDrawerListener(mDrawerToggle);
-            mDrawerToggle.syncState();
-        }
-
-        if (savedInstanceState == null) {
-            selectItem(0);
         }
         /* Menu Tests */
 
