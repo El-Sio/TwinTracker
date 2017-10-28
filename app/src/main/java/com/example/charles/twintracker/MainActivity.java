@@ -1,9 +1,12 @@
 package com.example.charles.twintracker;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -21,6 +24,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -82,12 +86,20 @@ public class MainActivity extends AppCompatActivity {
         // ActionBarDrawerToggle will take care of this.
         feedings.clear();
 
-        new DownloadWebpageTask(new AsyncResult() {
-            @Override
-            public void onResult(JSONArray object) {
-                processJson(object);
-            }
-        }).execute("http://japansio.info/api/feedings.json");
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        if(networkInfo != null && networkInfo.isConnected()) {
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJson(object);
+                }
+            }).execute("http://japansio.info/api/feedings.json");
+        }
+        if(networkInfo == null || !networkInfo.isConnected()) {
+            Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+        }
         return true;
     }
 
@@ -239,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
             txtPreLast2.setText(z2);
 
         } catch (JSONException e) {
+            Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT);
             e.printStackTrace();
         }
     }
@@ -315,13 +328,20 @@ public class MainActivity extends AppCompatActivity {
         txtCurrentDuration1 = (TextView)findViewById(R.id.current_duration_1);
         txtCurrentDuration2 = (TextView)findViewById(R.id.current_duration_2);
 
-        new DownloadWebpageTask(new AsyncResult() {
-            @Override
-            public void onResult(JSONArray object) {
-                processJson(object);
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-            }
-        }).execute("http://japansio.info/api/feedings.json");
+        if(networkInfo != null && networkInfo.isConnected()) {
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJson(object);
+                }
+            }).execute("http://japansio.info/api/feedings.json");
+        }
+        if(networkInfo == null || !networkInfo.isConnected()) {
+            Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+        }
 
         bathBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -384,19 +404,29 @@ public class MainActivity extends AppCompatActivity {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
 
-                                    timer1.cancel();
-                                    timer1 = null;
-                                    txtPreLast1.setText(txtLastDate1.getText());
-                                    txtLastDate1.setText(txtCurrentCount1.getText().toString()+"  "+txtCurrentDuration1.getText().toString());
+                                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-                                    feedings.add(new feeding("agathe",txtCurrentCount1.getText().toString(),txtCurrentDuration1.getText().toString()));
-                                    String json = new Gson().toJson(feedings);
+                                    if(networkInfo != null && networkInfo.isConnected()) {
+                                        timer1.cancel();
+                                        timer1 = null;
+                                        txtPreLast1.setText(txtLastDate1.getText());
+                                        txtLastDate1.setText(txtCurrentCount1.getText().toString() + "  " + txtCurrentDuration1.getText().toString());
 
-                                    System.out.println(json);
-                                    new UploadDataTask().execute("http://japansio.info/api/putdata.php",json);
+                                        feedings.add(new feeding("agathe", txtCurrentCount1.getText().toString(), txtCurrentDuration1.getText().toString()));
+                                        String json = new Gson().toJson(feedings);
 
-                                    txtCurrentCount1.setText("");
-                                    txtCurrentDuration1.setText("");
+                                        System.out.println(json);
+                                        new UploadDataTask().execute("http://japansio.info/api/putdata.php", json);
+
+                                        txtCurrentCount1.setText("");
+                                        txtCurrentDuration1.setText("");
+                                        Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
+                                    }
+                                    if(networkInfo == null || !networkInfo.isConnected()) {
+                                        Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                                    }
+
 
                                 }
                             })
@@ -405,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
                                     // do nothing
                                 }
                             })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setIcon(android.R.drawable.ic_dialog_info)
                             .show();
                 }
                 else {
@@ -417,17 +447,27 @@ public class MainActivity extends AppCompatActivity {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
 
-                                    txtPreLast1.setText(txtLastDate1.getText());
-                                    txtLastDate1.setText(txtCurrentCount1.getText().toString()+"  "+txtCurrentDuration1.getText().toString());
+                                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-                                    feedings.add(new feeding("agathe",txtCurrentCount1.getText().toString(),txtCurrentDuration1.getText().toString()));
-                                    String json = new Gson().toJson(feedings);
+                                    if(networkInfo != null && networkInfo.isConnected()) {
+                                        txtPreLast1.setText(txtLastDate1.getText());
+                                        txtLastDate1.setText(txtCurrentCount1.getText().toString() + "  " + txtCurrentDuration1.getText().toString());
 
-                                    System.out.println(json);
-                                    new UploadDataTask().execute("http://japansio.info/api/putdata.php",json);
+                                        feedings.add(new feeding("agathe", txtCurrentCount1.getText().toString(), txtCurrentDuration1.getText().toString()));
+                                        String json = new Gson().toJson(feedings);
 
-                                    txtCurrentCount1.setText("");
-                                    txtCurrentDuration1.setText("");
+                                        System.out.println(json);
+                                        new UploadDataTask().execute("http://japansio.info/api/putdata.php", json);
+
+                                        txtCurrentCount1.setText("");
+                                        txtCurrentDuration1.setText("");
+                                        Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
+                                    }
+                                    if(networkInfo == null || !networkInfo.isConnected()) {
+                                        Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                                    }
+
 
                                 }
                             })
@@ -436,7 +476,7 @@ public class MainActivity extends AppCompatActivity {
                                     // do nothing
                                 }
                             })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setIcon(android.R.drawable.ic_dialog_info)
                             .show();
                 }
             }
@@ -454,6 +494,10 @@ public class MainActivity extends AppCompatActivity {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
 
+                                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                                    if(networkInfo != null && networkInfo.isConnected()) {
                                     timer2.cancel();
                                     timer2 = null;
 
@@ -468,6 +512,11 @@ public class MainActivity extends AppCompatActivity {
 
                                     txtCurrentCount2.setText("");
                                     txtCurrentDuration2.setText("");
+                                        Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
+                                    }
+                                    if(networkInfo == null || !networkInfo.isConnected()) {
+                                        Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                                    }
                                 }
                             })
                             .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -475,7 +524,7 @@ public class MainActivity extends AppCompatActivity {
                                     // do nothing
                                 }
                             })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setIcon(android.R.drawable.ic_dialog_info)
                             .show();
                 }
                 else {
@@ -486,6 +535,10 @@ public class MainActivity extends AppCompatActivity {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
 
+                                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                                    if(networkInfo != null && networkInfo.isConnected()) {
                                     txtPreLast2.setText(txtLastDate2.getText());
                                     txtLastDate2.setText(txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString());
 
@@ -497,6 +550,11 @@ public class MainActivity extends AppCompatActivity {
 
                                     txtCurrentCount2.setText("");
                                     txtCurrentDuration2.setText("");
+                                        Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
+                                    }
+                                    if(networkInfo == null || !networkInfo.isConnected()) {
+                                        Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                                    }
                                 }
                             })
                             .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -504,7 +562,7 @@ public class MainActivity extends AppCompatActivity {
                                     // do nothing
                                 }
                             })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setIcon(android.R.drawable.ic_dialog_info)
                             .show();
                 }
             }

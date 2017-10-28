@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,12 +66,20 @@ public class DisplayHistoryActivity extends AppCompatActivity {
             case R.id.action_sync: {
                 feedings.clear();
 
-                new DownloadWebpageTask(new AsyncResult() {
-                    @Override
-                    public void onResult(JSONArray object) {
-                        processJson(object);
-                    }
-                }).execute("http://japansio.info/api/feedings.json");
+                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                if(networkInfo != null && networkInfo.isConnected()) {
+                    new DownloadWebpageTask(new AsyncResult() {
+                        @Override
+                        public void onResult(JSONArray object) {
+                            processJson(object);
+                        }
+                    }).execute("http://japansio.info/api/feedings.json");
+                }
+                if(networkInfo == null || !networkInfo.isConnected()) {
+                    Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                }
                 return true;
             }
             case R.id.home: {
@@ -117,12 +126,17 @@ public class DisplayHistoryActivity extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-        new DownloadWebpageTask(new AsyncResult() {
-            @Override
-            public void onResult(JSONArray object) {
-                processJson(object);
-            }
-        }).execute("http://japansio.info/api/feedings.json");
+        if(networkInfo != null && networkInfo.isConnected()) {
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJson(object);
+                }
+            }).execute("http://japansio.info/api/feedings.json");
+        }
+        if(networkInfo == null || !networkInfo.isConnected()) {
+            Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+        }
 
     }
 
@@ -144,7 +158,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
 
                 try {
 
-                    for(int r=object.length(); r> 0; --r) {
+                    for(int r=object.length(); r>0; --r) {
                         JSONObject row = object.getJSONObject(r-1);
                         String name = row.getString("name");
                         String duration = row.getString("duration");

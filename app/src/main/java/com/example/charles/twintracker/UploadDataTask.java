@@ -1,6 +1,8 @@
 package com.example.charles.twintracker;
 
+import android.app.Application;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
