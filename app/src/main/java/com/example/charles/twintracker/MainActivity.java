@@ -37,7 +37,6 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
 
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,bathBttn1,bathBttn2;
-    ImageButton historyBttn;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2;
 
     ArrayList<feeding> feedings;
@@ -81,9 +80,14 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // The action bar home/up action should open or close the drawer.
         // ActionBarDrawerToggle will take care of this.
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
+        feedings.clear();
+
+        new DownloadWebpageTask(new AsyncResult() {
+            @Override
+            public void onResult(JSONArray object) {
+                processJson(object);
+            }
+        }).execute("http://japansio.info/api/feedings.json");
         return true;
     }
 
@@ -294,10 +298,6 @@ public class MainActivity extends AppCompatActivity {
         }
         /* Menu Tests */
 
-
-
-
-        historyBttn = (ImageButton)findViewById(R.id.historybttn);
         strtBttn1 = (Button)findViewById(R.id.start_button_1);
         strtBttn2 = (Button)findViewById(R.id.start_button_2);
         stopBttn1 = (Button)findViewById(R.id.stop_button_1);
@@ -322,15 +322,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }).execute("http://japansio.info/api/feedings.json");
-
-
-        historyBttn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                displayHistory(v);
-            }
-        });
 
         bathBttn1.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -30,7 +30,6 @@ import java.util.ArrayList;
 public class DisplayHistoryActivity extends AppCompatActivity {
 
     ArrayList<feeding> feedings;
-    ImageButton btnDownload;
     ListView listview;
 
         /* menu tests */
@@ -63,8 +62,17 @@ public class DisplayHistoryActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // The action bar home/up action should open or close the drawer.
         // ActionBarDrawerToggle will take care of this.
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
+
+        if(item.getItemId() == R.id.action_sync)
+        {
+            feedings.clear();
+
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJson(object);
+                }
+            }).execute("http://japansio.info/api/feedings.json");
         }
         return true;
     }
@@ -158,17 +166,10 @@ public class DisplayHistoryActivity extends AppCompatActivity {
         /* Menu Tests */
 
 
-        btnDownload = (ImageButton) findViewById(R.id.downloadBttn);
-
         listview = (ListView)findViewById(R.id.listview);
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            btnDownload.setEnabled(true);
-        } else {
-            btnDownload.setEnabled(false);
-        }
 
         new DownloadWebpageTask(new AsyncResult() {
             @Override
@@ -192,18 +193,6 @@ public class DisplayHistoryActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
         //      mDrawerToggle.onConfigurationChanged(newConfig);
     }
-
-        public void buttonClickHandler(View view) {
-
-            feedings.clear();
-
-            new DownloadWebpageTask(new AsyncResult() {
-                @Override
-                public void onResult(JSONArray object) {
-                    processJson(object);
-                }
-            }).execute("http://japansio.info/api/feedings.json");
-        }
 
         private void processJson(JSONArray object) {
 

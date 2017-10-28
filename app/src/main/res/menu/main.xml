@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_sync"
-        android:icon="@mipmap/ic_download"
+        android:icon="@mipmap/ic_sync"
         android:title="@string/action_sync"
-        app:showAsAction="never"/>
+        app:showAsAction="ifRoom"/>
 </menu>
