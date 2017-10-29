@@ -1,8 +1,6 @@
 package com.example.charles.twintracker;
 
-import android.app.Application;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,7 +12,10 @@ import java.nio.charset.StandardCharsets;
  * Created by charl on 25/10/2017.
  */
 
-public class UploadDataTask extends AsyncTask <String, String, String> {
+//Custom Asynchronous task to Upload data to the API in JSON format through a HTTP POST request.
+//Data is read by a simple php script on the server that stores the json input into a ?json file
+
+ class UploadDataTask extends AsyncTask <String, String, String> {
 
     @Override
     protected String doInBackground(String... params) {
@@ -28,7 +29,7 @@ public class UploadDataTask extends AsyncTask <String, String, String> {
         return "done";
     }
 
-    public void postData(String urlString, String data) throws IOException {
+    private void postData(String urlString, String data) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000 /* milliseconds */);

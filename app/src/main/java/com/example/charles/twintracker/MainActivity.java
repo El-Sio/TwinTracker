@@ -21,7 +21,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,21 +39,31 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
+    //Main class of the app
+
+    //standard UI items
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,bathBttn1,bathBttn2;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2;
 
+    //Structured data Filled from the API
     ArrayList<feeding> feedings;
-    Timer timer1, timer2;
 
+    //Time objects for tracking
+    Timer timer1, timer2;
     TwinTimerTask twinTimerTask1, twinTimerTask2;
 
+    //APIResources
+    public static final String GET_DATA_URL = "http://japansio.info/api/feedings.json";
+    public static final String PUT_DATA_URL = "http://japansio.info/api/putdata.php";
+
+    //<using preferences to save data locally, namely status of t imers to handle App being sent to background
     public static final String PREFS_NAME = "lastdata";
 
     public static boolean ongoing1,ongoing2;
     public static String started1,started2;
     public static long starttime1, starttime2;
 
-    /* menu tests */
+    // Drawer menu items
 
     private Toolbar toolbar;
     private DrawerLayout mDrawerLayout;
@@ -65,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private CharSequence mTitle;
     private String[] mPlanetTitles;
 
+    //Populate the drawer menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -80,23 +90,28 @@ public class MainActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
+    //Handles the toolbar menu with one item "refresh"
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // The action bar home/up action should open or close the drawer.
-        // ActionBarDrawerToggle will take care of this.
+
+        //empty dataset
         feedings.clear();
 
+        //test for network
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if(networkInfo != null && networkInfo.isConnected()) {
+
+           //asynchronously calls the API
             new DownloadWebpageTask(new AsyncResult() {
                 @Override
                 public void onResult(JSONArray object) {
                     processJson(object);
                 }
-            }).execute("http://japansio.info/api/feedings.json");
+            }).execute(GET_DATA_URL);
         }
+        //if no network, warn user with toast
         if(networkInfo == null || !networkInfo.isConnected()) {
             Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
         }
@@ -108,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             selectItem(position);
+            //Menu Item navigates to history page
             if(position==1) {
                 displayHistory(view);
             }
@@ -128,20 +144,21 @@ public class MainActivity extends AppCompatActivity {
         mTitle = title;
     }
 
-    /* Menu Tests */
 
+    //Calls History page by creating an instance of the DisplayHistoryActivity class
     public void displayHistory(View view) {
         Intent intent = new Intent(this, DisplayHistoryActivity.class);
         startActivity(intent);
     }
 
 
+    //This is called when the app is being killed. Timer status are deleted from preferences
     @Override
     protected void onStop() {
         super.onStop();
 
         if(this.isFinishing()) {
-            //Dying System.out.println("Dying");
+            //The app is really terminating, reset all remaining timers
             final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
             final SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean("ongoing1", false);
@@ -149,11 +166,12 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
         }
         else {
-            // Not Dying System.out.println("Not Dying");
+            // App Not Dying, do noting because on pause was called first and on resume will be called next
         }
 
     }
 
+    //This is called when the app goes into the background. Timer status are stored in preferences
     @Override
     protected void onPause() {
         super.onPause();
@@ -185,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //This is called when app retunrs in foreground, timers are restarted according to their status on leaving read from preferences
     @Override
     protected void onResume() {
         super.onResume();
@@ -210,10 +229,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        //This is called on success of the HTTP GET request to the API and parses the json response into an array of structured data (custom object feeding)
     private void processJson(JSONArray object) {
 
         try {
 
+            //read from the end of the dataset to display last feedings first
             for(int r=0; r< object.length(); ++r) {
                 JSONObject row = object.getJSONObject(r);
                 String name = row.getString("name");
@@ -222,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
                 feedings.add(new feeding(name,start,duration));
             }
 
+            //Fetch latest data for Twin1 (agathe) and the one before that
             String a1 = "";
             String a2 = "";
             int f = feedings.size();
@@ -236,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
             txtLastDate1.setText(a1);
             txtPreLast1.setText(a2);
 
+            //Fetch latest data for Twin2 (Zoé) and the one before that
             String z1 = "";
             String z2 = "";
             for(int j =0; j<f; j++)
@@ -251,11 +274,14 @@ public class MainActivity extends AppCompatActivity {
             txtPreLast2.setText(z2);
 
         } catch (JSONException e) {
-            Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT);
+            //In case parsing goes wrong
+            Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
 
+
+    //Create the main activity page
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -264,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        /* Menu Tests */
+        /* Drawer Menu Stuff */
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         ActionBarDrawerToggle mDrawerToggle;
@@ -309,7 +335,8 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             selectItem(0);
         }
-        /* Menu Tests */
+
+        //Standard UI components
 
         strtBttn1 = (Button)findViewById(R.id.start_button_1);
         strtBttn2 = (Button)findViewById(R.id.start_button_2);
@@ -328,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
         txtCurrentDuration1 = (TextView)findViewById(R.id.current_duration_1);
         txtCurrentDuration2 = (TextView)findViewById(R.id.current_duration_2);
 
+        //Check for network and fetch data from API on creation of the page to fill the "last data" fields
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
@@ -337,12 +365,14 @@ public class MainActivity extends AppCompatActivity {
                 public void onResult(JSONArray object) {
                     processJson(object);
                 }
-            }).execute("http://japansio.info/api/feedings.json");
+            }).execute(GET_DATA_URL);
         }
         if(networkInfo == null || !networkInfo.isConnected()) {
             Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
         }
 
+        //Stop timer N1
+        //TODO refactor this to chnge "bath" to "stop"
         bathBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -355,6 +385,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Stop timer N2
+        //TODO refactor this to chnge "bath" to "stop"
         bathBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -366,6 +398,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Start Timer N1
         strtBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -379,6 +412,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Start Timer N2
         strtBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -392,6 +426,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Record data of timer N1
+        //TODO refctor this to change Stop into Record or save
+        //If timer is running or data not empty (stopped by user), display a popup to confirm saving and send the data to the API in JSON through a POST request.
         stopBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -417,7 +454,7 @@ public class MainActivity extends AppCompatActivity {
                                         String json = new Gson().toJson(feedings);
 
                                         System.out.println(json);
-                                        new UploadDataTask().execute("http://japansio.info/api/putdata.php", json);
+                                        new UploadDataTask().execute(PUT_DATA_URL, json);
 
                                         txtCurrentCount1.setText("");
                                         txtCurrentDuration1.setText("");
@@ -458,7 +495,7 @@ public class MainActivity extends AppCompatActivity {
                                         String json = new Gson().toJson(feedings);
 
                                         System.out.println(json);
-                                        new UploadDataTask().execute("http://japansio.info/api/putdata.php", json);
+                                        new UploadDataTask().execute(PUT_DATA_URL, json);
 
                                         txtCurrentCount1.setText("");
                                         txtCurrentDuration1.setText("");
@@ -482,6 +519,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Record data of timer N1
+        //TODO refctor this to change Stop into Record or save
+        //If timer is running or data not empty (stopped by user), display a popup to confirm saving and send the data to the API in JSON through a POST request.
         stopBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -508,7 +548,7 @@ public class MainActivity extends AppCompatActivity {
                                     String json = new Gson().toJson(feedings);
 
                                     System.out.println(json);
-                                    new UploadDataTask().execute("http://japansio.info/api/putdata.php",json);
+                                    new UploadDataTask().execute(PUT_DATA_URL,json);
 
                                     txtCurrentCount2.setText("");
                                     txtCurrentDuration2.setText("");
@@ -546,7 +586,7 @@ public class MainActivity extends AppCompatActivity {
                                     String json = new Gson().toJson(feedings);
 
                                     System.out.println(json);
-                                    new UploadDataTask().execute("http://japansio.info/api/putdata.php",json);
+                                    new UploadDataTask().execute(PUT_DATA_URL,json);
 
                                     txtCurrentCount2.setText("");
                                     txtCurrentDuration2.setText("");
@@ -570,6 +610,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //Handle drawer call from action bar
     @Override
     protected void onPostCreate(Bundle savedInstanceState)
     {
@@ -577,6 +618,7 @@ public class MainActivity extends AppCompatActivity {
 //        mDrawerToggle.syncState();
     }
 
+    //Handle drawer call from action bar
     @Override
     public void onConfigurationChanged(Configuration newConfig)
     {
@@ -585,21 +627,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //Custom timer task to schedeule a counter to track time elapsed from button click and display it in hh:mm:ss format.
     private class TwinTimerTask extends TimerTask {
 
         TextView refTxtView1, refTxtView2;
-        public long startTime;
-        public String startDate;
+         long startTime;
+         String startDate;
 
 
-        public TwinTimerTask(TextView refTxtView1, TextView refTxtView2, long startTime, String startDate) {
+        //Constructor on resume case, the start point is passed and the elapse time is calculated from this start
+         TwinTimerTask(TextView refTxtView1, TextView refTxtView2, long startTime, String startDate) {
             this.refTxtView1 = refTxtView1;
             this.refTxtView2 = refTxtView2;
             this.startTime = startTime;
             this.startDate = startDate;
         }
 
-        public TwinTimerTask(TextView refTxtView1, TextView refTxtView2) {
+        //Basic constructor, takes current time as startpoint
+         TwinTimerTask(TextView refTxtView1, TextView refTxtView2) {
 
             this.refTxtView1 = refTxtView1;
             this.refTxtView2 = refTxtView2;
@@ -610,11 +655,12 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        public long getStartTime() {
+        //Getters and Setters
+        long getStartTime() {
             return startTime;
         }
 
-        public String getStartDate() {return startDate;}
+        String getStartDate() {return startDate;}
 
         @Override
         public void run() {

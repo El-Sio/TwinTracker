@@ -4,13 +4,14 @@ package com.example.charles.twintracker;
  * Created by charl on 24/10/2017.
  */
 
-public class feeding {
+//Custon class to store the Data structure of a feeding with a name (agathe or zoe), a start time (as hh:mm:ss string), and a duration (as (hh:mm:ss) string)
+ class feeding {
 
     private String name;
     private String start;
     private String duration;
 
-    public feeding(String name, String start, String duration) {
+     feeding(String name, String start, String duration) {
         this.name = name;
         this.start = start;
         this.duration = duration;
@@ -20,11 +21,11 @@ public class feeding {
         return name;
     }
 
-    public String getStart() {
+     String getStart() {
         return start;
     }
 
-    public String getDuration() {
+     String getDuration() {
         return duration;
     }
 

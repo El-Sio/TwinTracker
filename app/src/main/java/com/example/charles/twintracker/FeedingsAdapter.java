@@ -13,12 +13,13 @@ import java.util.ArrayList;
  * Created by charl on 25/10/2017.
  */
 
-public class FeedingsAdapter extends ArrayAdapter<feeding> {
+//Custom Adapter to inflate content of the Data Type into a ListView
+ class FeedingsAdapter extends ArrayAdapter<feeding> {
 
-    Context context;
+    private Context context;
     private ArrayList<feeding> feedings;
 
-    public FeedingsAdapter(Context context, int textViewResourceId, ArrayList<feeding> items) {
+     FeedingsAdapter(Context context, int textViewResourceId, ArrayList<feeding> items) {
         super(context, textViewResourceId, items);
         this.context = context;
         this.feedings = items;

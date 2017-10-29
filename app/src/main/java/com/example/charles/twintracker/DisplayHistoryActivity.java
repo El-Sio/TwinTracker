@@ -8,16 +8,12 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,23 +23,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-
+//Display History of the feedings for both twins in the form of a list view populated from the JSON data through a HTTP GET request on the API
 public class DisplayHistoryActivity extends AppCompatActivity {
 
+    public static final String GET_DATA_URL = "http://japansio.info/api/feedings.json";
     ArrayList<feeding> feedings;
     ListView listview;
 
-        /* menu tests */
-
-    private Toolbar toolbar;
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
-    private android.support.v4.app.ActionBarDrawerToggle mDrawerToggle;
-
-    private CharSequence mDrawerTitle;
-    private CharSequence mTitle;
-    private String[] mPlanetTitles;
-
+    //Menu stuff : a single action menu in action bar to refresh the page
+    //TODO implement support of pull to refresh widget on the ListView
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -58,6 +46,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
+    //Handle menu interaction : Navigate back to Main activity (home) or refresh data (re-send HttP get request if the network is available
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -75,7 +64,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
                         public void onResult(JSONArray object) {
                             processJson(object);
                         }
-                    }).execute("http://japansio.info/api/feedings.json");
+                    }).execute(GET_DATA_URL);
                 }
                 if(networkInfo == null || !networkInfo.isConnected()) {
                     Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -91,14 +80,16 @@ public class DisplayHistoryActivity extends AppCompatActivity {
     }
 
 
-    /* Menu Tests */
 
-
+// Method to navigate back to main activity
+//TODO figure out if this is useless considering it's just a child of the Main Activity
     public void displayHome(View view) {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
+
+    //Create the Display History page, and downloads data from the API through a GET HTTP request.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,7 +98,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_display_history);
 
-        /* Menu Tests */
+        //Menu Stuff
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.child_toolbar);
 
@@ -132,7 +123,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
                 public void onResult(JSONArray object) {
                     processJson(object);
                 }
-            }).execute("http://japansio.info/api/feedings.json");
+            }).execute(GET_DATA_URL);
         }
         if(networkInfo == null || !networkInfo.isConnected()) {
             Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -140,6 +131,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
 
     }
 
+    //Handle menu from action bar
     @Override
     protected void onPostCreate(Bundle savedInstanceState)
     {
@@ -147,6 +139,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
 //        mDrawerToggle.syncState();
     }
 
+    //Handle menu from action bar
     @Override
     public void onConfigurationChanged(Configuration newConfig)
     {
@@ -154,7 +147,8 @@ public class DisplayHistoryActivity extends AppCompatActivity {
         //      mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-        private void processJson(JSONArray object) {
+    //Process thz JSON data fetched from the API through the GET HTTP request.
+    private void processJson(JSONArray object) {
 
                 try {
 

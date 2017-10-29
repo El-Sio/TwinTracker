@@ -19,10 +19,12 @@ import java.net.URL;
  * Created by charl on 24/10/2017.
  */
 
-    public class DownloadWebpageTask extends AsyncTask<String, Void, String> {
-        AsyncResult callback;
+//Custom Async Class to Download data from the API in JSON using an HTTP GET Request
+//Data is read from a .json file on the server and parsed by the processJson method
+     class DownloadWebpageTask extends AsyncTask<String, Void, String> {
+       private AsyncResult callback;
 
-        public DownloadWebpageTask(AsyncResult callback) {
+         DownloadWebpageTask(AsyncResult callback) {
             this.callback = callback;
         }
 
