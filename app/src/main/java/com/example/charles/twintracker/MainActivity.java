@@ -14,6 +14,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,7 +23,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,6 +48,14 @@ public class MainActivity extends AppCompatActivity {
     //standard UI items
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,bathBttn1,bathBttn2;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2;
+
+    //Popup Items
+    String selected_name;
+    String input_started;
+    String input_duration;
+    EditText start_input, duration_input;
+    Spinner select_name;
+    AlertDialog.Builder feeding_input;
 
     //Structured data Filled from the API
     ArrayList<feeding> feedings;
@@ -90,33 +102,108 @@ public class MainActivity extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
-    //Handles the toolbar menu with one item "refresh"
+    //Handles the toolbar menu with two items : sync and edit
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        //empty dataset
-        feedings.clear();
+        switch (item.getItemId()) {
+            case R.id.action_sync: {
+                //empty dataset
+                feedings.clear();
 
-        //test for network
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                //test for network
+                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-        if(networkInfo != null && networkInfo.isConnected()) {
+                if (networkInfo != null && networkInfo.isConnected()) {
 
-           //asynchronously calls the API
-            new DownloadWebpageTask(new AsyncResult() {
-                @Override
-                public void onResult(JSONArray object) {
-                    processJson(object);
+                    //asynchronously calls the API
+                    new DownloadWebpageTask(new AsyncResult() {
+                        @Override
+                        public void onResult(JSONArray object) {
+                            processJson(object);
+                        }
+                    }).execute(GET_DATA_URL);
                 }
-            }).execute(GET_DATA_URL);
+                //if no network, warn user with toast
+                if (networkInfo == null || !networkInfo.isConnected()) {
+                    Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            }
+            case R.id.action_edit: {
+                LayoutInflater factory = LayoutInflater.from(this);
+                final View feeding_input_form = factory.inflate(R.layout.feeding_form,null);
+
+
+                select_name = (Spinner) feeding_input_form.findViewById(R.id.select_name);
+
+
+                // Create an ArrayAdapter using the string array and a default spinner layout
+                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                        R.array.twins, android.R.layout.simple_spinner_item);
+                // Specify the layout to use when the list of choices appears
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                // Apply the adapter to the spinner
+                select_name.setAdapter(adapter);
+
+                select_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        selected_name = parent.getItemAtPosition(position).toString();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+
+                start_input = (EditText) feeding_input_form.findViewById(R.id.start_input);
+                duration_input = (EditText)feeding_input_form.findViewById(R.id.duration_input);
+                feeding_input = new AlertDialog.Builder(this);
+                feeding_input.setIcon(android.R.drawable.ic_input_add).setTitle("Enregistrer une têtée").setView(feeding_input_form).setPositiveButton("Save",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                /* User clicked OK so do some stuff */
+                                input_duration = duration_input.getText().toString();
+                                input_started = start_input.getText().toString();
+
+                                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                                if(networkInfo != null && networkInfo.isConnected()) {
+                                //Toast.makeText(getApplicationContext(), selected_name + " / " + input_started + " / " + input_duration, Toast.LENGTH_SHORT).show();
+                                feedings.add(new feeding(selected_name,input_started,input_duration));
+                                String json = new Gson().toJson(feedings);
+
+                                System.out.println(json);
+                                new UploadDataTask().execute(PUT_DATA_URL, json);
+                                Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
+                            }
+                                    if(networkInfo == null || !networkInfo.isConnected()) {
+                                Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                            }
+
+
+                            }
+                        }).setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+     /*
+     * User clicked cancel so do some stuff
+     */
+                            }
+                        });
+                feeding_input.show();
+            }
+            default:
+                return true;
         }
-        //if no network, warn user with toast
-        if(networkInfo == null || !networkInfo.isConnected()) {
-            Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
-        }
-        return true;
     }
+
 
     /* The click listner for ListView in the navigation drawer */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {

@@ -43,6 +43,9 @@ public class DisplayHistoryActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // If the nav drawer is open, hide action items related to the content view
+        MenuItem edit_item = menu.findItem(R.id.action_edit);
+        edit_item.setVisible(false);
+
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -70,6 +73,9 @@ public class DisplayHistoryActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
                 }
                 return true;
+            }
+            case R.id.action_edit: {
+
             }
             case R.id.home: {
                 displayHome(findViewById(R.id.home));

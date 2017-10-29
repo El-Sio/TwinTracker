@@ -5,4 +5,8 @@
         android:icon="@mipmap/ic_sync"
         android:title="@string/action_sync"
         app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_edit"
+        android:icon="@mipmap/ic_edit"
+        android:title="@string/action_edit"
+        app:showAsAction="ifRoom"/>
 </menu>

@@ -10,9 +10,14 @@
     <string name="drawer_open">Menu</string>
     <string name="drawer_close">TwinTracker</string>
     <string name="menu_refresh">Rafraichir</string>
-
+<string-array name="twins">
+    <item name="twin1">agathe</item>
+    <item name ="twin2">zoé</item>
+</string-array>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>>
 
     <string name="action_sync">Synchroniser</string>
+    <string name="action_edit">Ajouter</string>
+    <string name="datehint">00:00:00</string>
 </resources>
