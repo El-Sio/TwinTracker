@@ -737,8 +737,9 @@ public class MainActivity extends AppCompatActivity {
             this.refTxtView2 = refTxtView2;
             startTime = System.currentTimeMillis();
             Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-            startDate = simpleDateFormat.format(calendar.getTime());
+            SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("HH");
+             SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH");
+            startDate = simpleDateFormat1.format(calendar.getTime())+ "h"+ simpleDateFormat2.format(calendar.getTime());
 
         }
 
