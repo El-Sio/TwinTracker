@@ -107,14 +107,15 @@ public class MainActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.action_sync: {
-                //empty dataset
-                feedings.clear();
 
                 //test for network
                 ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
                 if (networkInfo != null && networkInfo.isConnected()) {
+
+                    //empty dataset
+                    feedings.clear();
 
                     //asynchronously calls the API
                     new DownloadWebpageTask(new AsyncResult() {
@@ -134,9 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 LayoutInflater factory = LayoutInflater.from(this);
                 final View feeding_input_form = factory.inflate(R.layout.feeding_form,null);
 
-
                 select_name = (Spinner) feeding_input_form.findViewById(R.id.select_name);
-
 
                 // Create an ArrayAdapter using the string array and a default spinner layout
                 ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -161,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 start_input = (EditText) feeding_input_form.findViewById(R.id.start_input);
                 duration_input = (EditText)feeding_input_form.findViewById(R.id.duration_input);
                 feeding_input = new AlertDialog.Builder(this);
-                feeding_input.setIcon(android.R.drawable.ic_input_add).setTitle("Enregistrer une têtée").setView(feeding_input_form).setPositiveButton("Save",
+                feeding_input.setIcon(R.mipmap.ic_edit).setTitle("Enregistrer une têtée").setView(feeding_input_form).setPositiveButton("Enregistrer",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
@@ -187,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                             }
-                        }).setNegativeButton("Cancel",
+                        }).setNegativeButton("Annuler",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
@@ -458,7 +457,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Stop timer N1
-        //TODO refactor this to chnge "bath" to "stop"
+        //TODO refactor this to change "bath" to "stop"
         bathBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -472,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Stop timer N2
-        //TODO refactor this to chnge "bath" to "stop"
+        //TODO refactor this to change "bath" to "stop"
         bathBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -513,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Record data of timer N1
-        //TODO refctor this to change Stop into Record or save
+        //TODO refactor this to change Stop into Record or save
         //If timer is running or data not empty (stopped by user), display a popup to confirm saving and send the data to the API in JSON through a POST request.
         stopBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
