@@ -20,4 +20,5 @@
     <string name="action_sync">Synchroniser</string>
     <string name="action_edit">Ajouter</string>
     <string name="datehint">00:00:00</string>
+    <string name="vitamin">Vitamines</string>
 </resources>

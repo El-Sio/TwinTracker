@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -158,7 +157,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
 
                 try {
 
-                    for(int r=object.length(); r>0; --r) {
+                    for(int r=object.length(); r>Math.max(object.length()-36,0); --r) {
                         JSONObject row = object.getJSONObject(r-1);
                         String name = row.getString("name");
                         String duration = row.getString("duration");

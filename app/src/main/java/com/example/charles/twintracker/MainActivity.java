@@ -37,6 +37,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     //Main class of the app
 
     //standard UI items
-    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,bathBttn1,bathBttn2;
+    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2;
 
     //Popup Items
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Structured data Filled from the API
     ArrayList<feeding> feedings;
+    ArrayList<vitamin> vitamins;
 
     //Time objects for tracking
     Timer timer1, timer2;
@@ -66,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     //APIResources
     public static final String GET_DATA_URL = "http://japansio.info/api/feedings.json";
     public static final String PUT_DATA_URL = "http://japansio.info/api/putdata.php";
+    public static final String PUT_VITAMIN_DATA_URL = "http://japansio.info/api/putvitamindata.php";
+    public static final String GET_VITAMIN_DATA_URL = "http://japansio.info/api/vitamin.json";
 
     //<using preferences to save data locally, namely status of t imers to handle App being sent to background
     public static final String PREFS_NAME = "lastdata";
@@ -116,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
                     //empty dataset
                     feedings.clear();
+                    vitamins.clear();
 
                     //asynchronously calls the API
                     new DownloadWebpageTask(new AsyncResult() {
@@ -124,6 +129,13 @@ public class MainActivity extends AppCompatActivity {
                             processJson(object);
                         }
                     }).execute(GET_DATA_URL);
+
+                    new DownloadWebpageTask(new AsyncResult() {
+                        @Override
+                        public void onResult(JSONArray object) {
+                            processJsonvitamin(object);
+                        }
+                    }).execute(GET_VITAMIN_DATA_URL);
                 }
                 //if no network, warn user with toast
                 if (networkInfo == null || !networkInfo.isConnected()) {
@@ -365,6 +377,65 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void processJsonvitamin(JSONArray object) {
+
+        try {
+
+            //read from the end of the dataset to display last feedings first
+            for(int r=0; r< object.length(); ++r) {
+                JSONObject row = object.getJSONObject(r);
+                String name = row.getString("name");
+                String jour = row.getString("day");
+                vitamins.add(new vitamin(name,jour));
+            }
+
+            //Fetch latest vitamin data for Twin1 (agathe)
+            String a1 = "";
+            String jourvitamines1 = "";
+            int f = vitamins.size();
+            for(int j =0; j<f; j++)
+            {
+                if(vitamins.get(j).getName().equals("agathe")) {
+                    jourvitamines1 = vitamins.get(j).getDay();
+                    a1 = " Vitamines : "+ jourvitamines1 + " ";
+
+                }
+            }
+            vitaminBttn1.setText(a1);
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+            String aujourdhui = joursemaine.format(calendar.getTime());
+            System.out.println("ajourd'hui = "+ aujourdhui + " vitamines : "+ jourvitamines1);
+            if(!aujourdhui.equals(jourvitamines1)) {
+                vitaminBttn1.setBackgroundResource(R.color.colorAccent);
+            }
+            else vitaminBttn1.setBackgroundResource(R.color.colorPrimary);
+
+            //Fetch latest vitamin data for Twin2 (Zoé)
+            String z1 = "";
+            String jourvitamines2 = "";
+            for(int j =0; j<f; j++)
+            {
+                if(vitamins.get(j).getName().equals("zoé")) {
+                    jourvitamines2 = vitamins.get(j).getDay();
+                    z1 = " Vitamines : " + jourvitamines2+ " ";
+                }
+            }
+            vitaminBttn2.setText(z1);
+            if(!aujourdhui.equals(jourvitamines2)) {
+                vitaminBttn2.setBackgroundResource(R.color.colorAccent);
+            }
+            else vitaminBttn2.setBackgroundResource(R.color.colorPrimary);
+
+
+
+        } catch (JSONException e) {
+            //In case parsing goes wrong
+            Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
 
     //Create the main activity page
     @Override
@@ -372,6 +443,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         feedings = new ArrayList<>();
+        vitamins = new ArrayList<>();
 
         setContentView(R.layout.activity_main);
 
@@ -427,8 +499,8 @@ public class MainActivity extends AppCompatActivity {
         strtBttn2 = (Button)findViewById(R.id.start_button_2);
         stopBttn1 = (Button)findViewById(R.id.stop_button_1);
         stopBttn2 = (Button)findViewById(R.id.stop_button_2);
-        bathBttn1 = (Button)findViewById(R.id.bath_button_1);
-        bathBttn2 = (Button)findViewById(R.id.bath_button_2);
+        vitaminBttn1 = (Button)findViewById(R.id.vitamin_button_1);
+        vitaminBttn2 = (Button)findViewById(R.id.vitamin_button_2);
 
         txtCurrentCount1 = (TextView)findViewById(R.id.current_timer_1);
         txtCurrentCount2 = (TextView)findViewById(R.id.current_timer_2);
@@ -451,34 +523,101 @@ public class MainActivity extends AppCompatActivity {
                     processJson(object);
                 }
             }).execute(GET_DATA_URL);
+
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonvitamin(object);
+                }
+            }).execute(GET_VITAMIN_DATA_URL);
         }
         if(networkInfo == null || !networkInfo.isConnected()) {
             Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
         }
 
-        //Stop timer N1
-        //TODO refactor this to change "bath" to "stop"
-        bathBttn1.setOnClickListener(new View.OnClickListener() {
+        //vitamin Button 1
+        vitaminBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
 
-                if(timer1 != null) {
-                    timer1.cancel();
-                    timer1 = null;
+                String jourvitamines1 = "";
+                int f = vitamins.size();
+                for(int j =0; j<f; j++)
+                {
+                    if(vitamins.get(j).getName().equals("agathe")) {
+                        jourvitamines1 = vitamins.get(j).getDay();
+                    }
                 }
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                String jourvitamines = joursemaine.format(calendar.getTime());
 
+                if(!jourvitamines.equals(jourvitamines1)) {
+
+                    vitaminBttn1.setText("  Vitamines : " + jourvitamines + "  ");
+                    vitaminBttn1.setBackgroundResource(R.color.colorPrimary);
+                    vitamin vitamin1 = new vitamin("agathe", jourvitamines);
+                    vitamins.add(vitamin1);
+                    String json = new Gson().toJson(vitamins);
+
+                    System.out.println(json);
+
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        new UploadDataTask().execute(PUT_VITAMIN_DATA_URL, json);
+                        Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
+                    }
+                    if (networkInfo == null || !networkInfo.isConnected()) {
+                        Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Vitamines déjà données aujourd'hui", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
-        //Stop timer N2
-        //TODO refactor this to change "bath" to "stop"
-        bathBttn2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                if(timer2 != null) {
-                    timer2.cancel();
-                    timer2 = null;
+        //vitamin Button 2
+        vitaminBttn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                int f = vitamins.size();
+                String jourvitamines2 = "";
+                for (int j = 0; j < f; j++) {
+                    if (vitamins.get(j).getName().equals("zoé")) {
+                        jourvitamines2 = vitamins.get(j).getDay();
+                    }
+                }
+
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                String jourvitamines = joursemaine.format(calendar.getTime());
+                if (!jourvitamines.equals(jourvitamines2)) {
+                    vitaminBttn2.setText("  Vitamines : " + jourvitamines + "  ");
+                    vitaminBttn2.setBackgroundResource(R.color.colorPrimary);
+                    vitamin vitamin2 = new vitamin("zoé", jourvitamines);
+                    vitamins.add(vitamin2);
+                    String json = new Gson().toJson(vitamins);
+
+                    System.out.println(json);
+
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        new UploadDataTask().execute(PUT_VITAMIN_DATA_URL, json);
+                        Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
+                    }
+                    if (networkInfo == null || !networkInfo.isConnected()) {
+                        Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Vitamines déjà données aujourd'hui", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -487,13 +626,19 @@ public class MainActivity extends AppCompatActivity {
         strtBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(timer1 != null)
+                if(timer1 != null) {
                     timer1.cancel();
-                timer1 = new Timer();
-                twinTimerTask1 = new TwinTimerTask(txtCurrentCount1,txtCurrentDuration1);
-                timer1.schedule(twinTimerTask1,1000,1000);
-                txtCurrentCount1.setText("");
-                txtCurrentDuration1.setText("");
+                    timer1 = null;
+                    strtBttn1.setText("Démarrer");
+                }
+                else {
+                    timer1 = new Timer();
+                    twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1);
+                    timer1.schedule(twinTimerTask1, 1000, 1000);
+                    strtBttn1.setText("Arrêter");
+                    txtCurrentCount1.setText("");
+                    txtCurrentDuration1.setText("");
+                }
             }
         });
 
@@ -501,13 +646,19 @@ public class MainActivity extends AppCompatActivity {
         strtBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(timer2 != null)
+                if(timer2 != null) {
                     timer2.cancel();
-                timer2 = new Timer();
-                twinTimerTask2 = new TwinTimerTask(txtCurrentCount2,txtCurrentDuration2);
-                timer2.schedule(twinTimerTask2,1000,1000);
-                txtCurrentCount2.setText("");
-                txtCurrentDuration2.setText("");
+                    timer2 = null;
+                    strtBttn2.setText("Démarrer");
+                }
+                else {
+                    timer2 = new Timer();
+                    twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2);
+                    timer2.schedule(twinTimerTask2, 1000, 1000);
+                    strtBttn2.setText("Arrêter");
+                    txtCurrentCount2.setText("");
+                    txtCurrentDuration2.setText("");
+                }
             }
         });
 
@@ -736,7 +887,7 @@ public class MainActivity extends AppCompatActivity {
             startTime = System.currentTimeMillis();
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("HH");
-             SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH");
+             SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("mm");
             startDate = simpleDateFormat1.format(calendar.getTime())+ "h"+ simpleDateFormat2.format(calendar.getTime());
 
         }
@@ -761,8 +912,8 @@ public class MainActivity extends AppCompatActivity {
                     long s = seconds % 60;
                     long m = (seconds / 60) % 60;
                     long h = (seconds / (60 * 60)) % 24;
-                    String timertext = String.format("%d:%02d:%02d", h,m,s);
-                    refTxtView2.setText("("+timertext+")");
+                    String timertext = String.format("%02d:%02d",m,s);
+                    refTxtView2.setText(timertext);
                     refTxtView1.setText(startDate);
                 }
             });

@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
     protected String doInBackground(String... params) {
         try {
             postData(params[0],params[1]);
-            System.out.println("post successfull");
+            System.out.println("post successful");
         } catch (IOException e) {
             System.out.println("post request failed");
             e.printStackTrace();

@@ -89,30 +89,19 @@
             android:id="@+id/stop_button_1"
             android:layout_width="100dp"
             android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
             android:background="?attr/colorAccent"
             android:text="@string/stop"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/start_button_1" />
-
-        <Button
-            android:id="@+id/bath_button_1"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
-            android:background="?attr/colorButtonNormal"
-            android:text="@string/bath"
             app:layout_constraintLeft_toRightOf="@id/start_button_1"
-            app:layout_constraintTop_toTopOf="@id/start_button_1" />
+            app:layout_constraintTop_toTopOf="@+id/start_button_1" />
 
 
         <TextView
             android:id="@+id/current_timer_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
             android:textSize="10pt"
             app:layout_constraintLeft_toRightOf="@id/stop_button_1"
             app:layout_constraintTop_toTopOf="@id/stop_button_1" />
@@ -121,23 +110,34 @@
             android:id="@+id/current_duration_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="10dp"
             android:textSize="10pt"
             app:layout_constraintLeft_toRightOf="@id/current_timer_1"
             app:layout_constraintTop_toTopOf="@id/current_timer_1" />
+
+        <Button
+            android:id="@+id/vitamin_button_1"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/vitamin"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:background="?android:attr/colorButtonNormal"
+            app:layout_constraintLeft_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stop_button_1"/>
 
         <TextView
             android:id="@+id/twin2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="15dp"
             android:text="@string/twin2_name"
             android:textColor="?attr/actionMenuTextColor"
             android:textSize="15pt"
             android:textStyle="bold"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/stop_button_1" />
+            app:layout_constraintTop_toBottomOf="@id/vitamin_button_1" />
 
         <TextView
             android:id="@+id/last2"
@@ -194,20 +194,9 @@
             android:id="@+id/stop_button_2"
             android:layout_width="100dp"
             android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
             android:background="?attr/colorAccent"
             android:text="@string/stop"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/start_button_2" />
-
-        <Button
-            android:id="@+id/bath_button_2"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
-            android:background="?attr/colorButtonNormal"
-            android:text="@string/bath"
             app:layout_constraintLeft_toRightOf="@id/start_button_2"
             app:layout_constraintTop_toTopOf="@id/start_button_2" />
 
@@ -216,8 +205,8 @@
             android:id="@+id/current_timer_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
             android:textSize="10pt"
             app:layout_constraintLeft_toRightOf="@id/stop_button_2"
             app:layout_constraintTop_toTopOf="@id/stop_button_2" />
@@ -226,10 +215,22 @@
             android:id="@+id/current_duration_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="10dp"
             android:textSize="10pt"
             app:layout_constraintLeft_toRightOf="@id/current_timer_2"
             app:layout_constraintTop_toTopOf="@id/current_timer_2" />
+
+        <Button
+            android:id="@+id/vitamin_button_2"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/vitamin"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:background="?android:attr/colorButtonNormal"
+            app:layout_constraintLeft_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stop_button_2"/>
+
     </android.support.constraint.ConstraintLayout>
 
     <ListView
