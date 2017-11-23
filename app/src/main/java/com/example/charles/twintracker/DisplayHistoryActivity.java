@@ -114,7 +114,6 @@ public class DisplayHistoryActivity extends AppCompatActivity {
         {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        /* Menu Tests */
 
 
         listview = (ListView)findViewById(R.id.listview);
@@ -157,6 +156,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
 
                 try {
 
+                    //Limit parsing to the first 36 objects wich covers the last 3 days of data
                     for(int r=object.length(); r>Math.max(object.length()-36,0); --r) {
                         JSONObject row = object.getJSONObject(r-1);
                         String name = row.getString("name");

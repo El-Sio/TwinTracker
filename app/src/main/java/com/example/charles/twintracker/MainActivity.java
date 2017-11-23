@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
-    private String[] mPlanetTitles;
+    private String[] mmenutTitles;
 
     //Populate the drawer menu
     @Override
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (networkInfo != null && networkInfo.isConnected()) {
 
-                    //empty dataset
+                    //empty datasets
                     feedings.clear();
                     vitamins.clear();
 
@@ -188,7 +188,6 @@ public class MainActivity extends AppCompatActivity {
                                 feedings.add(new feeding(selected_name,input_started,input_duration));
                                 String json = new Gson().toJson(feedings);
 
-                                System.out.println(json);
                                 new UploadDataTask().execute(PUT_DATA_URL, json);
                                 Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
                             }
@@ -232,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
 
         // update selected item and title, then close the drawer
         mDrawerList.setItemChecked(position, true);
-        setTitle(mPlanetTitles[position]);
+        setTitle(mmenutTitles[position]);
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 
@@ -377,11 +376,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom vitamin object
     private void processJsonvitamin(JSONArray object) {
 
         try {
 
-            //read from the end of the dataset to display last feedings first
+            //read from the end of the dataset to display last entry first
             for(int r=0; r< object.length(); ++r) {
                 JSONObject row = object.getJSONObject(r);
                 String name = row.getString("name");
@@ -405,10 +405,12 @@ public class MainActivity extends AppCompatActivity {
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
             String aujourdhui = joursemaine.format(calendar.getTime());
-            System.out.println("ajourd'hui = "+ aujourdhui + " vitamines : "+ jourvitamines1);
+            //Compare the last entry day for vitamins with current day
             if(!aujourdhui.equals(jourvitamines1)) {
+                //if they do not match, display the button in red (kids must have their vitamins daily)
                 vitaminBttn1.setBackgroundResource(R.color.colorAccent);
             }
+            //fine if it's today
             else vitaminBttn1.setBackgroundResource(R.color.colorPrimary);
 
             //Fetch latest vitamin data for Twin2 (Zoé)
@@ -422,7 +424,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             vitaminBttn2.setText(z1);
+            //Compare the last entry day for vitamins with current day
             if(!aujourdhui.equals(jourvitamines2)) {
+                //if they do not match, display the button in red (kids must have their vitamins daily)
                 vitaminBttn2.setBackgroundResource(R.color.colorAccent);
             }
             else vitaminBttn2.setBackgroundResource(R.color.colorPrimary);
@@ -456,14 +460,14 @@ public class MainActivity extends AppCompatActivity {
         final ActionBar actionBar = getSupportActionBar();
 
         mTitle = mDrawerTitle = "Twin Tracker";
-        mPlanetTitles = new String[]{"Accueil", "Historique"};
+        mmenutTitles = new String[]{"Accueil", "Historique"};
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
 
         // set up the drawer's list view with items and click listener
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, mPlanetTitles));
+                R.layout.drawer_list_item, mmenutTitles));
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         if (actionBar != null)
@@ -512,11 +516,14 @@ public class MainActivity extends AppCompatActivity {
         txtCurrentDuration1 = (TextView)findViewById(R.id.current_duration_1);
         txtCurrentDuration2 = (TextView)findViewById(R.id.current_duration_2);
 
-        //Check for network and fetch data from API on creation of the page to fill the "last data" fields
+        //Check for network and fetch data from API on creation of the page to fill the "last data" fields and vitamin buttons
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
+
         if(networkInfo != null && networkInfo.isConnected()) {
+
+            //get Feeding data
             new DownloadWebpageTask(new AsyncResult() {
                 @Override
                 public void onResult(JSONArray object) {
@@ -524,6 +531,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).execute(GET_DATA_URL);
 
+            //get Vitamin data
             new DownloadWebpageTask(new AsyncResult() {
                 @Override
                 public void onResult(JSONArray object) {
@@ -532,14 +540,16 @@ public class MainActivity extends AppCompatActivity {
             }).execute(GET_VITAMIN_DATA_URL);
         }
         if(networkInfo == null || !networkInfo.isConnected()) {
+            //inform the user if no network is connected
             Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
         }
 
-        //vitamin Button 1
+        //vitamin Button 1 Click sends today's date to the server unless current day is already the latest data
         vitaminBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                //get latest data entry for twin 1
                 String jourvitamines1 = "";
                 int f = vitamins.size();
                 for(int j =0; j<f; j++)
@@ -552,35 +562,39 @@ public class MainActivity extends AppCompatActivity {
                 SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
                 String jourvitamines = joursemaine.format(calendar.getTime());
 
+                //compare with current date
                 if(!jourvitamines.equals(jourvitamines1)) {
 
+                    //update text if new date
                     vitaminBttn1.setText("  Vitamines : " + jourvitamines + "  ");
                     vitaminBttn1.setBackgroundResource(R.color.colorPrimary);
                     vitamin vitamin1 = new vitamin("agathe", jourvitamines);
                     vitamins.add(vitamin1);
                     String json = new Gson().toJson(vitamins);
 
-                    System.out.println(json);
-
                     ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
                     if (networkInfo != null && networkInfo.isConnected()) {
+                        //send new day to server if network is available
                         new UploadDataTask().execute(PUT_VITAMIN_DATA_URL, json);
                         Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
                     }
                     if (networkInfo == null || !networkInfo.isConnected()) {
+                        //inform user if network is not available
                         Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
                     }
                 }
                 else {
+                    //nothing to do but inform the user if vitamins were already given today
                     Toast.makeText(getApplicationContext(), "Vitamines déjà données aujourd'hui", Toast.LENGTH_LONG).show();
                 }
             }
         });
 
 
-        //vitamin Button 2
+        //vitamin Button 2  Click sends today's date to the server unless current day is already the latest data same as Vitamin button 1
+        //TODO factor code for buttons that only differ by twin number (function with integer as parameter and button array ?)
         vitaminBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -602,8 +616,6 @@ public class MainActivity extends AppCompatActivity {
                     vitamin vitamin2 = new vitamin("zoé", jourvitamines);
                     vitamins.add(vitamin2);
                     String json = new Gson().toJson(vitamins);
-
-                    System.out.println(json);
 
                     ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -689,7 +701,6 @@ public class MainActivity extends AppCompatActivity {
                                         feedings.add(new feeding("agathe", txtCurrentCount1.getText().toString(), txtCurrentDuration1.getText().toString()));
                                         String json = new Gson().toJson(feedings);
 
-                                        System.out.println(json);
                                         new UploadDataTask().execute(PUT_DATA_URL, json);
 
                                         txtCurrentCount1.setText("");
@@ -730,7 +741,6 @@ public class MainActivity extends AppCompatActivity {
                                         feedings.add(new feeding("agathe", txtCurrentCount1.getText().toString(), txtCurrentDuration1.getText().toString()));
                                         String json = new Gson().toJson(feedings);
 
-                                        System.out.println(json);
                                         new UploadDataTask().execute(PUT_DATA_URL, json);
 
                                         txtCurrentCount1.setText("");
@@ -783,7 +793,6 @@ public class MainActivity extends AppCompatActivity {
                                     feedings.add(new feeding("zoé",txtCurrentCount2.getText().toString(),txtCurrentDuration2.getText().toString()));
                                     String json = new Gson().toJson(feedings);
 
-                                    System.out.println(json);
                                     new UploadDataTask().execute(PUT_DATA_URL,json);
 
                                     txtCurrentCount2.setText("");
@@ -821,7 +830,6 @@ public class MainActivity extends AppCompatActivity {
                                     feedings.add(new feeding("zoé",txtCurrentCount2.getText().toString(),txtCurrentDuration2.getText().toString()));
                                     String json = new Gson().toJson(feedings);
 
-                                    System.out.println(json);
                                     new UploadDataTask().execute(PUT_DATA_URL,json);
 
                                     txtCurrentCount2.setText("");
@@ -863,7 +871,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //Custom timer task to schedeule a counter to track time elapsed from button click and display it in hh:mm:ss format.
+    //Custom timer task to schedule a counter to track time elapsed from button click and display it in hh:mm:ss format.
     private class TwinTimerTask extends TimerTask {
 
         TextView refTxtView1, refTxtView2;
