@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     //Main class of the app
 
     //standard UI items
-    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2;
+    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2;
 
     //Popup Items
@@ -60,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
     //Structured data Filled from the API
     ArrayList<feeding> feedings;
     ArrayList<vitamin> vitamins;
+    ArrayList<iron> ironinputs;
+    iron currentiron1,currentiron2;
+    int ironindex1,ironindex2;
 
     //Time objects for tracking
     Timer timer1, timer2;
@@ -70,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String PUT_DATA_URL = "http://japansio.info/api/putdata.php";
     public static final String PUT_VITAMIN_DATA_URL = "http://japansio.info/api/putvitamindata.php";
     public static final String GET_VITAMIN_DATA_URL = "http://japansio.info/api/vitamin.json";
+    public static final String PUT_IRON_DATA_URL = "http://japansio.info/api/putirondata.php";
+    public static final String GET_IRON_DATA_URL = "http://japansio.info/api/iron.json";
 
     //<using preferences to save data locally, namely status of t imers to handle App being sent to background
     public static final String PREFS_NAME = "lastdata";
@@ -121,8 +126,13 @@ public class MainActivity extends AppCompatActivity {
                     //empty datasets
                     feedings.clear();
                     vitamins.clear();
+                    ironinputs.clear();
+                    ironindex1 = 0;
+                    ironindex2 = 0;
 
                     //asynchronously calls the API
+
+                    //feedings
                     new DownloadWebpageTask(new AsyncResult() {
                         @Override
                         public void onResult(JSONArray object) {
@@ -130,12 +140,22 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }).execute(GET_DATA_URL);
 
+                    //Vitamins
                     new DownloadWebpageTask(new AsyncResult() {
                         @Override
                         public void onResult(JSONArray object) {
                             processJsonvitamin(object);
                         }
                     }).execute(GET_VITAMIN_DATA_URL);
+
+                    //iron
+                    new DownloadWebpageTask(new AsyncResult() {
+                        @Override
+                        public void onResult(JSONArray object) {
+                            processJsonIron(object);
+                        }
+                    }).execute(GET_IRON_DATA_URL);
+
                 }
                 //if no network, warn user with toast
                 if (networkInfo == null || !networkInfo.isConnected()) {
@@ -377,6 +397,90 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom vitamin object
+    private void processJsonIron(JSONArray object) {
+        try {
+
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+            String aujourdhui = joursemaine.format(calendar.getTime());
+
+            //read from the end of the dataset to display last entry first
+            for(int r=0; r< object.length(); ++r) {
+                JSONObject row = object.getJSONObject(r);
+                String name = row.getString("name");
+                String jour = row.getString("day");
+                int count = row.getInt("count");
+                ironinputs.add(new iron(name, jour, count));
+            }
+
+
+            //Fetch latest iron data for Twin1 (agathe)
+
+            int f = ironinputs.size();
+            for(int j =0; j<f; j++)
+            {
+                if(ironinputs.get(j).getName().equals("agathe")) {
+
+                    currentiron1 = ironinputs.get(j);
+                    ironindex1 = j;
+                }
+            }
+
+            //Display the data on the Iron button : same day but one count is grey, same day and two counts is blue, previous or other day is red
+            if(currentiron1!=null) {
+                String bouton1 = "  Fer : " + currentiron1.getDay() + " (" + currentiron1.getCount() + ")  ";
+                ironBttn1.setText(bouton1);
+
+                if(!currentiron1.getDay().equals(aujourdhui)) {
+                    ironBttn1.setBackgroundResource(R.color.colorAccent);
+                }
+                else {
+                    if(currentiron1.getCount() == 2) {
+                        ironBttn1.setBackgroundResource(R.color.colorPrimary);
+                    }
+                    if(currentiron1.getCount() == 1) {
+                        ironBttn1.setBackgroundResource(R.color.colorNormal);
+                    }
+                }
+            }
+
+            //Fetch latest iron data for Twin2 (Zoé)
+
+            for(int j =0; j<f; j++)
+            {
+                if(ironinputs.get(j).getName().equals("zoé")) {
+
+                    currentiron2 = ironinputs.get(j);
+                    ironindex2 = j;
+                }
+            }
+
+            //Display the data on the Iron button : same day but one count is grey, same day and two counts is blue, previous or other day is red
+            if(currentiron2!=null) {
+                String bouton2 = "  Fer : " + currentiron2.getDay() + " (" + currentiron2.getCount() + ")  ";
+                ironBttn2.setText(bouton2);
+
+                if(!currentiron2.getDay().equals(aujourdhui)) {
+                    ironBttn2.setBackgroundResource(R.color.colorAccent);
+                }
+                else {
+                    if(currentiron2.getCount() == 2) {
+                        ironBttn2.setBackgroundResource(R.color.colorPrimary);
+                    }
+                    if(currentiron2.getCount() == 1) {
+                        ironBttn2.setBackgroundResource(R.color.colorNormal);
+                    }
+                }
+            }
+        }
+        catch (JSONException e) {
+            //In case parsing goes wrong
+            Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+    //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom vitamin object
     private void processJsonvitamin(JSONArray object) {
 
         try {
@@ -448,6 +552,8 @@ public class MainActivity extends AppCompatActivity {
 
         feedings = new ArrayList<>();
         vitamins = new ArrayList<>();
+        ironinputs = new ArrayList<>();
+        ironindex1 = ironindex2 = 0;
 
         setContentView(R.layout.activity_main);
 
@@ -505,6 +611,8 @@ public class MainActivity extends AppCompatActivity {
         stopBttn2 = (Button)findViewById(R.id.stop_button_2);
         vitaminBttn1 = (Button)findViewById(R.id.vitamin_button_1);
         vitaminBttn2 = (Button)findViewById(R.id.vitamin_button_2);
+        ironBttn1 = (Button)findViewById(R.id.iron_button_1);
+        ironBttn2 = (Button)findViewById(R.id.iron_button_2);
 
         txtCurrentCount1 = (TextView)findViewById(R.id.current_timer_1);
         txtCurrentCount2 = (TextView)findViewById(R.id.current_timer_2);
@@ -538,11 +646,177 @@ public class MainActivity extends AppCompatActivity {
                     processJsonvitamin(object);
                 }
             }).execute(GET_VITAMIN_DATA_URL);
+
+            //get Iron data
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonIron(object);
+                }
+            }).execute(GET_IRON_DATA_URL);
+
         }
         if(networkInfo == null || !networkInfo.isConnected()) {
             //inform the user if no network is connected
             Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
         }
+
+        ironBttn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                String jourfer = joursemaine.format(calendar.getTime());
+
+                if(currentiron1 != null && currentiron1.getDay().equals(jourfer)) {
+                    if(currentiron1.getCount() ==2) {
+                        //nothing to do but inform the user if vitamins were already given today
+                        Toast.makeText(getApplicationContext(), "Fer déjà donné 2 fois aujourd'hui", Toast.LENGTH_LONG).show();
+                    }
+                    if(currentiron1.getCount() ==1) {
+                        currentiron1.setCount(2);
+                        ironinputs.get(ironindex1).setCount(2);
+                        String bouton1 = "  Fer : " + currentiron1.getDay() + " (" + currentiron1.getCount() +")  ";
+                        ironBttn1.setText(bouton1);
+                        ironBttn1.setBackgroundResource(R.color.colorPrimary);
+                        String json = new Gson().toJson(ironinputs);
+
+                        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                        if (networkInfo != null && networkInfo.isConnected()) {
+                            //send new day to server if network is available
+                            new UploadDataTask().execute(PUT_IRON_DATA_URL, json);
+                            Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
+
+                            //force update of iron data just after input to handle index rebuilding and avoid duplication in case of double press
+                            ironinputs.clear();
+                            new DownloadWebpageTask(new AsyncResult() {
+                                @Override
+                                public void onResult(JSONArray object) {
+                                    processJsonIron(object);
+                                }
+                            }).execute(GET_IRON_DATA_URL);
+                        }
+                        if (networkInfo == null || !networkInfo.isConnected()) {
+                            //inform user if network is not available
+                            Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+                else {
+                    iron ironjour1 = new iron("agathe",jourfer,1);
+                    ironinputs.add(ironjour1);
+                    String json = new Gson().toJson(ironinputs);
+
+                    String bouton1 = "  Fer : " + jourfer + " (1)  ";
+
+                    ironBttn1.setText(bouton1);
+                    ironBttn1.setBackgroundResource(R.color.colorNormal);
+
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        //send new day to server if network is available
+                        new UploadDataTask().execute(PUT_IRON_DATA_URL, json);
+                        Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
+                        //force update of iron data just after input to handle index rebuilding and avoid duplication in case of double press
+                        ironinputs.clear();
+                        new DownloadWebpageTask(new AsyncResult() {
+                            @Override
+                            public void onResult(JSONArray object) {
+                                processJsonIron(object);
+                            }
+                        }).execute(GET_IRON_DATA_URL);
+                    }
+                    if (networkInfo == null || !networkInfo.isConnected()) {
+                        //inform user if network is not available
+                        Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        });
+
+
+        ironBttn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                String jourfer = joursemaine.format(calendar.getTime());
+
+                if(currentiron2!=null && currentiron2.getDay().equals(jourfer)) {
+                    if(currentiron2.getCount() ==2) {
+                        //nothing to do but inform the user if vitamins were already given today
+                        Toast.makeText(getApplicationContext(), "Fer déjà donné 2 fois aujourd'hui", Toast.LENGTH_LONG).show();
+                    }
+                    if(currentiron2.getCount() ==1) {
+                        currentiron2.setCount(2);
+                        ironinputs.get(ironindex2).setCount(2);
+                        String json = new Gson().toJson(ironinputs);
+
+                        String bouton2 = "  Fer : " + currentiron2.getDay() + " (" + currentiron2.getCount() +")  ";
+                        ironBttn2.setText(bouton2);
+                        ironBttn2.setBackgroundResource(R.color.colorPrimary);
+
+                        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                        if (networkInfo != null && networkInfo.isConnected()) {
+                            //send new day to server if network is available
+                            new UploadDataTask().execute(PUT_IRON_DATA_URL, json);
+                            Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
+                            //force update of iron data just after input to handle index rebuilding and avoid duplication in case of double press
+                            ironinputs.clear();
+                            new DownloadWebpageTask(new AsyncResult() {
+                                @Override
+                                public void onResult(JSONArray object) {
+                                    processJsonIron(object);
+                                }
+                            }).execute(GET_IRON_DATA_URL);
+                        }
+                        if (networkInfo == null || !networkInfo.isConnected()) {
+                            //inform user if network is not available
+                            Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+                else {
+                    iron ironjour2 = new iron("zoé",jourfer,1);
+                    ironinputs.add(ironjour2);
+                    String json = new Gson().toJson(ironinputs);
+
+                    String bouton2 = "  Fer : " + jourfer + " (1)  ";
+
+                    ironBttn2.setText(bouton2);
+                    ironBttn2.setBackgroundResource(R.color.colorNormal);
+
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        //send new day to server if network is available
+                        new UploadDataTask().execute(PUT_IRON_DATA_URL, json);
+                        Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
+                        //force update of iron data just after input to handle index rebuilding and avoid duplication in case of double press
+                        ironinputs.clear();
+                        new DownloadWebpageTask(new AsyncResult() {
+                            @Override
+                            public void onResult(JSONArray object) {
+                                processJsonIron(object);
+                            }
+                        }).execute(GET_IRON_DATA_URL);
+                    }
+                    if (networkInfo == null || !networkInfo.isConnected()) {
+                        //inform user if network is not available
+                        Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        });
 
         //vitamin Button 1 Click sends today's date to the server unless current day is already the latest data
         vitaminBttn1.setOnClickListener(new View.OnClickListener() {
