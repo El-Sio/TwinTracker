@@ -6,7 +6,7 @@
     <string name="stop">Enregistrer</string>
     <string name="last">Dernière têtée :</string>
     <string name="prelast">Précédente :</string>
-    <string name="bath">Arrêter</string>
+    <string name="pause">Arrêter</string>
     <string name="drawer_open">Menu</string>
     <string name="drawer_close">TwinTracker</string>
     <string name="menu_refresh">Rafraichir</string>

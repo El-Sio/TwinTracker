@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String PUT_IRON_DATA_URL = "http://japansio.info/api/putirondata.php";
     public static final String GET_IRON_DATA_URL = "http://japansio.info/api/iron.json";
 
-    //<using preferences to save data locally, namely status of timers to handle App being sent to background
+    //Using preferences to save data locally, namely status of timers to handle App being sent to background
     public static final String PREFS_NAME = "lastdata";
 
     public static boolean ongoing1,ongoing2;
@@ -331,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
                 timer1 = new Timer();
                 twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1, starttime1 ,started1);
                 timer1.schedule(twinTimerTask1, 1000, 1000);
-                strtBttn1.setText("Arrêter");
+                strtBttn1.setText(R.string.start);
             }
 
         }
@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
                 timer2 = new Timer();
                 twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2,starttime2 ,started2);
                 timer2.schedule(twinTimerTask2, 1000, 1000);
-                strtBttn2.setText("Démarrer");
+                strtBttn2.setText(R.string.start);
             }
         }
 
@@ -842,7 +842,8 @@ public class MainActivity extends AppCompatActivity {
                 if(!jourvitamines.equals(jourvitamines1)) {
 
                     //update text if new date
-                    vitaminBttn1.setText("  Vitamines : " + jourvitamines + "  ");
+                    String vitaminbttn1 = "  Vitamines : " + jourvitamines + "  ";
+                    vitaminBttn1.setText(vitaminbttn1);
                     vitaminBttn1.setBackgroundResource(R.color.colorPrimary);
                     vitamin vitamin1 = new vitamin("agathe", jourvitamines);
                     vitamins.add(vitamin1);
@@ -887,7 +888,9 @@ public class MainActivity extends AppCompatActivity {
                 SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
                 String jourvitamines = joursemaine.format(calendar.getTime());
                 if (!jourvitamines.equals(jourvitamines2)) {
-                    vitaminBttn2.setText("  Vitamines : " + jourvitamines + "  ");
+
+                    String vitaminbttn2 = "  Vitamines : " + jourvitamines + "  ";
+                    vitaminBttn2.setText(vitaminbttn2);
                     vitaminBttn2.setBackgroundResource(R.color.colorPrimary);
                     vitamin vitamin2 = new vitamin("zoé", jourvitamines);
                     vitamins.add(vitamin2);
@@ -917,13 +920,13 @@ public class MainActivity extends AppCompatActivity {
                 if(timer1 != null) {
                     timer1.cancel();
                     timer1 = null;
-                    strtBttn1.setText("Démarrer");
+                    strtBttn1.setText(R.string.start);
                 }
                 else {
                     timer1 = new Timer();
                     twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1);
                     timer1.schedule(twinTimerTask1, 1000, 1000);
-                    strtBttn1.setText("Arrêter");
+                    strtBttn1.setText(R.string.pause);
                     txtCurrentCount1.setText("");
                     txtCurrentDuration1.setText("");
                 }
@@ -937,13 +940,13 @@ public class MainActivity extends AppCompatActivity {
                 if(timer2 != null) {
                     timer2.cancel();
                     timer2 = null;
-                    strtBttn2.setText("Démarrer");
+                    strtBttn2.setText(R.string.start);
                 }
                 else {
                     timer2 = new Timer();
                     twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2);
                     timer2.schedule(twinTimerTask2, 1000, 1000);
-                    strtBttn2.setText("Arrêter");
+                    strtBttn2.setText(R.string.pause);
                     txtCurrentCount2.setText("");
                     txtCurrentDuration2.setText("");
                 }
@@ -972,7 +975,8 @@ public class MainActivity extends AppCompatActivity {
                                         timer1.cancel();
                                         timer1 = null;
                                         txtPreLast1.setText(txtLastDate1.getText());
-                                        txtLastDate1.setText(txtCurrentCount1.getText().toString() + "  " + txtCurrentDuration1.getText().toString());
+                                        String lastdate1 = txtCurrentCount1.getText().toString() + "  " + txtCurrentDuration1.getText().toString();
+                                        txtLastDate1.setText(lastdate1);
 
                                         feedings.add(new feeding("agathe", txtCurrentCount1.getText().toString(), txtCurrentDuration1.getText().toString()));
                                         String json = new Gson().toJson(feedings);
@@ -982,7 +986,7 @@ public class MainActivity extends AppCompatActivity {
                                         txtCurrentCount1.setText("");
                                         txtCurrentDuration1.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
-                                        strtBttn1.setText("Démarrer");
+                                        strtBttn1.setText(R.string.start);
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1012,8 +1016,10 @@ public class MainActivity extends AppCompatActivity {
                                     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
                                     if(networkInfo != null && networkInfo.isConnected()) {
+
                                         txtPreLast1.setText(txtLastDate1.getText());
-                                        txtLastDate1.setText(txtCurrentCount1.getText().toString() + "  " + txtCurrentDuration1.getText().toString());
+                                        String lastdate1 = txtCurrentCount1.getText().toString() + "  " + txtCurrentDuration1.getText().toString();
+                                        txtLastDate1.setText(lastdate1);
 
                                         feedings.add(new feeding("agathe", txtCurrentCount1.getText().toString(), txtCurrentDuration1.getText().toString()));
                                         String json = new Gson().toJson(feedings);
@@ -1023,7 +1029,7 @@ public class MainActivity extends AppCompatActivity {
                                         txtCurrentCount1.setText("");
                                         txtCurrentDuration1.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
-                                        strtBttn1.setText("Démarrer");
+                                        strtBttn1.setText(R.string.start);
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1066,7 +1072,8 @@ public class MainActivity extends AppCompatActivity {
                                     timer2 = null;
 
                                     txtPreLast2.setText(txtLastDate2.getText());
-                                    txtLastDate2.setText(txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString());
+                                    String lastdate2 = txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString();
+                                    txtLastDate2.setText(lastdate2);
 
                                     feedings.add(new feeding("zoé",txtCurrentCount2.getText().toString(),txtCurrentDuration2.getText().toString()));
                                     String json = new Gson().toJson(feedings);
@@ -1076,7 +1083,7 @@ public class MainActivity extends AppCompatActivity {
                                     txtCurrentCount2.setText("");
                                     txtCurrentDuration2.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
-                                        strtBttn2.setText("Démarrer");
+                                        strtBttn2.setText(R.string.start);
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1104,7 +1111,8 @@ public class MainActivity extends AppCompatActivity {
 
                                     if(networkInfo != null && networkInfo.isConnected()) {
                                     txtPreLast2.setText(txtLastDate2.getText());
-                                    txtLastDate2.setText(txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString());
+                                    String lastdate2 = txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString();
+                                    txtLastDate2.setText(lastdate2);
 
                                     feedings.add(new feeding("zoé",txtCurrentCount2.getText().toString(),txtCurrentDuration2.getText().toString()));
                                     String json = new Gson().toJson(feedings);
@@ -1114,7 +1122,7 @@ public class MainActivity extends AppCompatActivity {
                                     txtCurrentCount2.setText("");
                                     txtCurrentDuration2.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
-                                        strtBttn2.setText("Démarrer");
+                                        strtBttn2.setText(R.string.start);
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1174,8 +1182,8 @@ public class MainActivity extends AppCompatActivity {
             this.refTxtView2 = refTxtView2;
             startTime = System.currentTimeMillis();
             Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("HH");
-             SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("mm");
+            SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("HH", Locale.FRANCE);
+             SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("mm", Locale.FRANCE);
             startDate = simpleDateFormat1.format(calendar.getTime())+ "h"+ simpleDateFormat2.format(calendar.getTime());
 
         }
@@ -1200,7 +1208,7 @@ public class MainActivity extends AppCompatActivity {
                     long s = seconds % 60;
                     long m = (seconds / 60) % 60;
                     long h = (seconds / (60 * 60)) % 24;
-                    String timertext = String.format("%02d:%02d",m,s);
+                    String timertext = String.format(Locale.FRANCE,"%02d:%02d",m,s);
                     refTxtView2.setText(timertext);
                     refTxtView1.setText(startDate);
                 }
