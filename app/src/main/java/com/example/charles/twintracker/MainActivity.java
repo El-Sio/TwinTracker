@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String PUT_IRON_DATA_URL = "http://japansio.info/api/putirondata.php";
     public static final String GET_IRON_DATA_URL = "http://japansio.info/api/iron.json";
 
-    //<using preferences to save data locally, namely status of t imers to handle App being sent to background
+    //<using preferences to save data locally, namely status of timers to handle App being sent to background
     public static final String PREFS_NAME = "lastdata";
 
     public static boolean ongoing1,ongoing2;
@@ -331,6 +331,7 @@ public class MainActivity extends AppCompatActivity {
                 timer1 = new Timer();
                 twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1, starttime1 ,started1);
                 timer1.schedule(twinTimerTask1, 1000, 1000);
+                strtBttn1.setText("Arrêter");
             }
 
         }
@@ -339,6 +340,7 @@ public class MainActivity extends AppCompatActivity {
                 timer2 = new Timer();
                 twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2,starttime2 ,started2);
                 timer2.schedule(twinTimerTask2, 1000, 1000);
+                strtBttn2.setText("Démarrer");
             }
         }
 
@@ -980,6 +982,7 @@ public class MainActivity extends AppCompatActivity {
                                         txtCurrentCount1.setText("");
                                         txtCurrentDuration1.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
+                                        strtBttn1.setText("Démarrer");
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1020,6 +1023,7 @@ public class MainActivity extends AppCompatActivity {
                                         txtCurrentCount1.setText("");
                                         txtCurrentDuration1.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
+                                        strtBttn1.setText("Démarrer");
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1072,6 +1076,7 @@ public class MainActivity extends AppCompatActivity {
                                     txtCurrentCount2.setText("");
                                     txtCurrentDuration2.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
+                                        strtBttn2.setText("Démarrer");
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1109,6 +1114,7 @@ public class MainActivity extends AppCompatActivity {
                                     txtCurrentCount2.setText("");
                                     txtCurrentDuration2.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
+                                        strtBttn2.setText("Démarrer");
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
