@@ -1,5 +1,8 @@
 package com.example.charles.twintracker;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,11 +11,13 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -605,6 +610,20 @@ public class MainActivity extends AppCompatActivity {
             selectItem(0);
         }
 
+        //notif
+        final NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        final Intent notificationIntent = new Intent(this,   MainActivity.class);
+        notificationIntent.putExtra("extra", "value");
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.setAction("android.intent.action.MAIN");
+        notificationIntent.addCategory("android.intent.category.LAUNCHER");
+
+        final PendingIntent contentIntent = PendingIntent
+                .getActivity(this, 0, notificationIntent,0);
+
         //Standard UI components
 
         strtBttn1 = (Button)findViewById(R.id.start_button_1);
@@ -921,6 +940,7 @@ public class MainActivity extends AppCompatActivity {
                     timer1.cancel();
                     timer1 = null;
                     strtBttn1.setText(R.string.start);
+                    mNotificationManager.cancel(1);
                 }
                 else {
                     timer1 = new Timer();
@@ -929,6 +949,14 @@ public class MainActivity extends AppCompatActivity {
                     strtBttn1.setText(R.string.pause);
                     txtCurrentCount1.setText("");
                     txtCurrentDuration1.setText("");
+                    android.support.v4.app.NotificationCompat.Builder mnbuilder = new NotificationCompat.Builder(MainActivity.this)
+                            .setSmallIcon(R.mipmap.ic_notif)
+                            .setWhen(System.currentTimeMillis())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
+                            .setUsesChronometer(true)
+                            .setContentTitle("Agathe")
+                            .setContentText("Têtée en cours")
+                            .setContentIntent(contentIntent);
+                    mNotificationManager.notify(1,mnbuilder.build());
                 }
             }
         });
@@ -941,6 +969,7 @@ public class MainActivity extends AppCompatActivity {
                     timer2.cancel();
                     timer2 = null;
                     strtBttn2.setText(R.string.start);
+                    mNotificationManager.cancel(2);
                 }
                 else {
                     timer2 = new Timer();
@@ -949,6 +978,14 @@ public class MainActivity extends AppCompatActivity {
                     strtBttn2.setText(R.string.pause);
                     txtCurrentCount2.setText("");
                     txtCurrentDuration2.setText("");
+                    android.support.v4.app.NotificationCompat.Builder mnbuilder = new NotificationCompat.Builder(MainActivity.this)
+                            .setSmallIcon(R.mipmap.ic_notif)
+                            .setWhen(System.currentTimeMillis())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
+                            .setUsesChronometer(true)
+                            .setContentTitle("Zoé")
+                            .setContentText("Têtée en cours")
+                            .setContentIntent(contentIntent);
+                    mNotificationManager.notify(2,mnbuilder.build());
                 }
             }
         });
@@ -987,6 +1024,7 @@ public class MainActivity extends AppCompatActivity {
                                         txtCurrentDuration1.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
                                         strtBttn1.setText(R.string.start);
+                                        mNotificationManager.cancel(1);
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1030,6 +1068,7 @@ public class MainActivity extends AppCompatActivity {
                                         txtCurrentDuration1.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
                                         strtBttn1.setText(R.string.start);
+                                        mNotificationManager.cancel(1);
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1084,6 +1123,7 @@ public class MainActivity extends AppCompatActivity {
                                     txtCurrentDuration2.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
                                         strtBttn2.setText(R.string.start);
+                                        mNotificationManager.cancel(2);
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1123,6 +1163,7 @@ public class MainActivity extends AppCompatActivity {
                                     txtCurrentDuration2.setText("");
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
                                         strtBttn2.setText(R.string.start);
+                                        mNotificationManager.cancel(2);
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
