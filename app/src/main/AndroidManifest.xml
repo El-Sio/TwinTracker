@@ -28,6 +28,7 @@
                 android:value=".MainActivity" />
             >
         </activity>
+        <service android:name=".MyService"/>
     </application>
 
 </manifest>

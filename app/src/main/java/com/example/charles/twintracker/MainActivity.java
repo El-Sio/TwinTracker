@@ -1,6 +1,5 @@
 package com.example.charles.twintracker;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -11,7 +10,6 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -50,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
 
     //Main class of the app
 
+    //Test with service
+    Intent serviceIntent;
+
     //standard UI items
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2;
@@ -66,8 +67,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<feeding> feedings;
     ArrayList<vitamin> vitamins;
     ArrayList<iron> ironinputs;
+    ArrayList<liveFeed> liveEvents;
+    liveFeed liveTwin1, liveTwin2;
     iron currentiron1,currentiron2;
-    int ironindex1,ironindex2;
+    int ironindex1,ironindex2,liveTwin1index,liveTwin2index;
 
     //Time objects for tracking
     Timer timer1, timer2;
@@ -80,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String GET_VITAMIN_DATA_URL = "http://japansio.info/api/vitamin.json";
     public static final String PUT_IRON_DATA_URL = "http://japansio.info/api/putirondata.php";
     public static final String GET_IRON_DATA_URL = "http://japansio.info/api/iron.json";
+    public static final String GET_LIVEFEED_DATA_URL = "http://japansio.info/api/livefeed.json";
+    public static final String PUT_LIVEFEED_DATA_URL = "http://japansio.info/api/putlivefeed.php";
 
     //Using preferences to save data locally, namely status of timers to handle App being sent to background
     public static final String PREFS_NAME = "lastdata";
@@ -132,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                     feedings.clear();
                     vitamins.clear();
                     ironinputs.clear();
+                    liveEvents.clear();
                     ironindex1 = 0;
                     ironindex2 = 0;
 
@@ -160,6 +166,14 @@ public class MainActivity extends AppCompatActivity {
                             processJsonIron(object);
                         }
                     }).execute(GET_IRON_DATA_URL);
+
+                    //get Live Feeds (remote ongoing feedings)
+                    new DownloadWebpageTask(new AsyncResult() {
+                        @Override
+                        public void onResult(JSONArray object) {
+                            processJsonLiveFeed(object);
+                        }
+                    }).execute(GET_LIVEFEED_DATA_URL);
 
                 }
                 //if no network, warn user with toast
@@ -239,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /* The click listner for ListView in the navigation drawer */
+    /* The click listener for ListView in the navigation drawer */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -280,6 +294,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(this.isFinishing()) {
             //The app is really terminating, reset all remaining timers
+
             final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
             final SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean("ongoing1", false);
@@ -328,6 +343,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         ongoing1 = settings.getBoolean("ongoing1",false);
         ongoing2 = settings.getBoolean("ongoing2", false);
@@ -336,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
                 timer1 = new Timer();
                 twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1, starttime1 ,started1);
                 timer1.schedule(twinTimerTask1, 1000, 1000);
-                strtBttn1.setText(R.string.start);
+                strtBttn1.setText(R.string.pause);
             }
 
         }
@@ -345,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
                 timer2 = new Timer();
                 twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2,starttime2 ,started2);
                 timer2.schedule(twinTimerTask2, 1000, 1000);
-                strtBttn2.setText(R.string.start);
+                strtBttn2.setText(R.string.pause);
             }
         }
 
@@ -551,16 +567,86 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void processJsonLiveFeed(JSONArray object) {
+
+        try {
+            //read from the end of the dataset to display last entry first
+            for(int r=0; r< object.length(); ++r) {
+                JSONObject row = object.getJSONObject(r);
+                String name = row.getString("name");
+                Boolean isgoing = row.getBoolean("isOngoing");
+                long starttime = row.getLong("startTime");
+                String startDate = row.getString("startDate");
+                liveEvents.add(new liveFeed(name, isgoing, starttime,startDate));
+            }
+
+            int f = liveEvents.size();
+
+            //get the latest event for agathe
+            for(int j =0; j<f; j++)
+            {
+                if(liveEvents.get(j).getName().equals("agathe")) {
+
+                    liveTwin1 = liveEvents.get(j);
+                    liveTwin1index = j;
+                }
+            }
+
+            //get the latest event for Zoé
+            for(int j =0; j<f; j++)
+            {
+                if(liveEvents.get(j).getName().equals("zoé")) {
+
+                    liveTwin2 = liveEvents.get(j);
+                    liveTwin2index = j;
+                }
+            }
+
+            //resume timer if there is a live feed for twin 1
+            if(liveTwin1!=null && liveTwin1.getOngoing()) {
+
+                if(timer1==null) {
+                    timer1 = new Timer();
+                    twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1, liveTwin1.getStartTime() ,liveTwin1.getStartDate());
+                    timer1.schedule(twinTimerTask1, 1000, 1000);
+                    strtBttn1.setText(R.string.pause);
+                }
+            }
+
+            //resume timer if there is a live feed for twin 1
+            if(liveTwin2!=null && liveTwin2.getOngoing()) {
+
+                if(timer2==null) {
+                    timer2 = new Timer();
+                    twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2, liveTwin2.getStartTime() ,liveTwin2.getStartDate());
+                    timer2.schedule(twinTimerTask2, 1000, 1000);
+                    strtBttn2.setText(R.string.pause);
+                }
+            }
+
+
+        }
+        catch (JSONException e) {
+            //In case parsing goes wrong
+            Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
 
     //Create the main activity page
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        serviceIntent = new Intent(this, MyService.class);
+        startService(serviceIntent);
+
         feedings = new ArrayList<>();
         vitamins = new ArrayList<>();
         ironinputs = new ArrayList<>();
         ironindex1 = ironindex2 = 0;
+        liveEvents = new ArrayList<>();
+        liveTwin1index = liveTwin2index =0;
 
         setContentView(R.layout.activity_main);
 
@@ -610,7 +696,7 @@ public class MainActivity extends AppCompatActivity {
             selectItem(0);
         }
 
-        //notif
+        //notification
         final NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -675,6 +761,14 @@ public class MainActivity extends AppCompatActivity {
                     processJsonIron(object);
                 }
             }).execute(GET_IRON_DATA_URL);
+
+            //get Live Feeds (remote ongoing feedings)
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonLiveFeed(object);
+                }
+            }).execute(GET_LIVEFEED_DATA_URL);
 
         }
         if(networkInfo == null || !networkInfo.isConnected()) {
@@ -939,11 +1033,28 @@ public class MainActivity extends AppCompatActivity {
                 if(timer1 != null) {
                     timer1.cancel();
                     timer1 = null;
+
+                    //cancel the ongoing feeding on the server by setting ongoing to false
+                    liveTwin1.setOngoing(false);
+                    liveEvents.get(liveTwin1index).setOngoing(false);
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if(networkInfo != null && networkInfo.isConnected()) {
+
+                        String json = new Gson().toJson(liveEvents);
+                        new UploadDataTask().execute(PUT_LIVEFEED_DATA_URL, json);
+                    }
+                    if(networkInfo == null || !networkInfo.isConnected()) {
+                        Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                    }
+
                     strtBttn1.setText(R.string.start);
                     mNotificationManager.cancel(1);
                 }
                 else {
                     timer1 = new Timer();
+                    long now = System.currentTimeMillis();
                     twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1);
                     timer1.schedule(twinTimerTask1, 1000, 1000);
                     strtBttn1.setText(R.string.pause);
@@ -957,6 +1068,33 @@ public class MainActivity extends AppCompatActivity {
                             .setContentText("Têtée en cours")
                             .setContentIntent(contentIntent);
                     mNotificationManager.notify(1,mnbuilder.build());
+
+                    //inform the server that tiwn 1 is being fed
+                    liveTwin1.setOngoing(true);
+                    liveTwin1.setStartTime(now);
+                    Calendar calendar = Calendar.getInstance();
+                    SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("HH", Locale.FRANCE);
+                    SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("mm", Locale.FRANCE);
+                    String startDate = simpleDateFormat1.format(calendar.getTime())+ "h"+ simpleDateFormat2.format(calendar.getTime());
+                    liveTwin1.setStartDate(startDate);
+
+                    liveEvents.get(liveTwin1index).setOngoing(true);
+                    liveEvents.get(liveTwin1index).setStartDate(startDate);
+                    liveEvents.get(liveTwin1index).setStartTime(now);
+
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if(networkInfo != null && networkInfo.isConnected()) {
+
+                        String json = new Gson().toJson(liveEvents);
+                        new UploadDataTask().execute(PUT_LIVEFEED_DATA_URL, json);
+                    }
+                    if(networkInfo == null || !networkInfo.isConnected()) {
+                        Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                    }
+
+
                 }
             }
         });
@@ -970,9 +1108,26 @@ public class MainActivity extends AppCompatActivity {
                     timer2 = null;
                     strtBttn2.setText(R.string.start);
                     mNotificationManager.cancel(2);
+
+                    //cancel the ongoing feeding on the server by setting ongoing to false
+                    liveTwin2.setOngoing(false);
+                    liveEvents.get(liveTwin2index).setOngoing(false);
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if(networkInfo != null && networkInfo.isConnected()) {
+
+                        String json = new Gson().toJson(liveEvents);
+                        new UploadDataTask().execute(PUT_LIVEFEED_DATA_URL, json);
+                    }
+                    if(networkInfo == null || !networkInfo.isConnected()) {
+                        Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                    }
+
                 }
                 else {
                     timer2 = new Timer();
+                    long now = System.currentTimeMillis();
                     twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2);
                     timer2.schedule(twinTimerTask2, 1000, 1000);
                     strtBttn2.setText(R.string.pause);
@@ -986,6 +1141,34 @@ public class MainActivity extends AppCompatActivity {
                             .setContentText("Têtée en cours")
                             .setContentIntent(contentIntent);
                     mNotificationManager.notify(2,mnbuilder.build());
+
+                    //inform the server that tiwn 2 is being fed
+                    liveTwin2.setOngoing(true);
+                    liveEvents.get(liveTwin2index).setOngoing(true);
+
+                    liveTwin2.setStartTime(now);
+                    Calendar calendar = Calendar.getInstance();
+                    SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("HH", Locale.FRANCE);
+                    SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("mm", Locale.FRANCE);
+                    String startDate = simpleDateFormat1.format(calendar.getTime())+ "h"+ simpleDateFormat2.format(calendar.getTime());
+                    liveTwin2.setStartDate(startDate);
+
+                    liveEvents.get(liveTwin2index).setOngoing(true);
+                    liveEvents.get(liveTwin2index).setStartDate(startDate);
+                    liveEvents.get(liveTwin2index).setStartTime(now);
+
+
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if(networkInfo != null && networkInfo.isConnected()) {
+
+                        String json = new Gson().toJson(liveEvents);
+                        new UploadDataTask().execute(PUT_LIVEFEED_DATA_URL, json);
+                    }
+                    if(networkInfo == null || !networkInfo.isConnected()) {
+                        Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });
@@ -1025,6 +1208,14 @@ public class MainActivity extends AppCompatActivity {
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
                                         strtBttn1.setText(R.string.start);
                                         mNotificationManager.cancel(1);
+
+                                        //cancel live feeding on the server
+                                        liveTwin1.setOngoing(false);
+                                        liveEvents.get(liveTwin1index).setOngoing(false);
+                                        String jsonl = new Gson().toJson(liveEvents);
+                                        new UploadDataTask().execute(PUT_LIVEFEED_DATA_URL, jsonl);
+
+
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1069,6 +1260,13 @@ public class MainActivity extends AppCompatActivity {
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
                                         strtBttn1.setText(R.string.start);
                                         mNotificationManager.cancel(1);
+
+                                        //cancel live feeding on the server
+                                        liveTwin1.setOngoing(false);
+                                        liveEvents.get(liveTwin1index).setOngoing(false);
+                                        String jsonl = new Gson().toJson(liveEvents);
+                                        new UploadDataTask().execute(PUT_LIVEFEED_DATA_URL, jsonl);
+
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1124,6 +1322,13 @@ public class MainActivity extends AppCompatActivity {
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
                                         strtBttn2.setText(R.string.start);
                                         mNotificationManager.cancel(2);
+
+                                        //cancel live feeding on the server
+                                        liveTwin2.setOngoing(false);
+                                        liveEvents.get(liveTwin2index).setOngoing(false);
+                                        String jsonl = new Gson().toJson(liveEvents);
+                                        new UploadDataTask().execute(PUT_LIVEFEED_DATA_URL, jsonl);
+
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1164,6 +1369,12 @@ public class MainActivity extends AppCompatActivity {
                                         Toast.makeText(getApplicationContext(),"Donnée Enregistrée",Toast.LENGTH_SHORT).show();
                                         strtBttn2.setText(R.string.start);
                                         mNotificationManager.cancel(2);
+
+                                        //cancel live feeding on the server
+                                        liveTwin2.setOngoing(false);
+                                        liveEvents.get(liveTwin2index).setOngoing(false);
+                                        String jsonl = new Gson().toJson(liveEvents);
+                                        new UploadDataTask().execute(PUT_LIVEFEED_DATA_URL, jsonl);
                                     }
                                     if(networkInfo == null || !networkInfo.isConnected()) {
                                         Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
@@ -1182,6 +1393,19 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(serviceIntent);
+
+        //cleanup just like when app is dying because the back button behavior and the delete app from recent activity is different
+        final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        final SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("ongoing1", false);
+        editor.putBoolean("ongoing2", false);
+        editor.apply();
+
+    }
 
     //Handle drawer call from action bar
     @Override
