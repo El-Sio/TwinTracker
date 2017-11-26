@@ -613,6 +613,37 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            //stop any timer if ongoing is false on the server
+
+            if(liveTwin1!=null && !liveTwin1.getOngoing()) {
+
+                if(timer1!=null) {
+                    timer1.cancel();
+                    txtCurrentCount1.setText("");
+                    txtCurrentDuration1.setText("");
+                    strtBttn1.setText(R.string.start);
+                    final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                    final SharedPreferences.Editor editor = settings.edit();
+                    editor.putBoolean("ongoing1", false);
+                    editor.apply();
+                }
+            }
+
+            if(liveTwin2!=null && !liveTwin2.getOngoing()) {
+
+                if(timer2!=null) {
+                    timer2.cancel();
+                    txtCurrentCount2.setText("");
+                    txtCurrentDuration2.setText("");
+                    strtBttn2.setText(R.string.start);
+                    final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                    final SharedPreferences.Editor editor = settings.edit();
+                    editor.putBoolean("ongoing2", false);
+                    editor.apply();
+                }
+            }
+
+
             //resume timer if there is a live feed for twin 1
             if(liveTwin2!=null && liveTwin2.getOngoing()) {
 
