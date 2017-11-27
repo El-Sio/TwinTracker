@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -28,7 +29,10 @@
                 android:value=".MainActivity" />
             >
         </activity>
-        <service android:name=".MyService"/>
+        <service android:name=".twinTrackerService"/>
+
+        <receiver android:name=".twinTrackerAlarmReceiver"
+            android:process=":remote" />
     </application>
 
 </manifest>

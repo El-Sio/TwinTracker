@@ -1,5 +1,6 @@
 package com.example.charles.twintracker;
 
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -47,9 +48,6 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
 
     //Main class of the app
-
-    //Test with service
-    Intent serviceIntent;
 
     //standard UI items
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2;
@@ -103,6 +101,41 @@ public class MainActivity extends AppCompatActivity {
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private String[] mmenutTitles;
+
+    //triggers updates in background on a regular basis
+    // Setup a recurring alarm every half hour
+    public void scheduleAlarm(liveFeed live1, liveFeed live2) {
+        // Construct an intent that will execute the AlarmReceiver
+        Intent intent = new Intent(getApplicationContext(), twinTrackerAlarmReceiver.class);
+        String latest1, latest2;
+        latest1 = "";
+        latest2 = "";
+        if(live1!=null) {
+            latest1 = live1.getStartDate();
+        }
+        if(live2!=null) {
+            latest2 = live2.getStartDate();
+        }
+        intent.putExtra("latest1",latest1);
+        intent.putExtra("latest2", latest2);
+        // Create a PendingIntent to be triggered when the alarm goes off
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, twinTrackerAlarmReceiver.REQUEST_CODE,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Setup periodic alarm every every half hour from this point onwards
+        long firstMillis = System.currentTimeMillis(); // alarm is set right away
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        // First parameter is the type: ELAPSED_REALTIME, ELAPSED_REALTIME_WAKEUP, RTC_WAKEUP
+        // Interval can be INTERVAL_FIFTEEN_MINUTES, INTERVAL_HALF_HOUR, INTERVAL_HOUR, INTERVAL_DAY
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, 10000, pIntent);
+    }
+
+    public void cancelAlarm() {
+        Intent intent = new Intent(getApplicationContext(), twinTrackerAlarmReceiver.class);
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, twinTrackerAlarmReceiver.REQUEST_CODE,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarm.cancel(pIntent);
+    }
 
     //Populate the drawer menu
     @Override
@@ -364,6 +397,23 @@ public class MainActivity extends AppCompatActivity {
                 strtBttn2.setText(R.string.pause);
             }
         }
+
+        //refresh data
+        //test for network
+        /* ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()) {
+            liveEvents.clear();
+            //get Live Feeds (remote ongoing feedings)
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonLiveFeed(object);
+                }
+            }).execute(GET_LIVEFEED_DATA_URL);
+        } */
+
 
         }
 
@@ -655,6 +705,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            scheduleAlarm(liveTwin1,liveTwin2);
+
 
         }
         catch (JSONException e) {
@@ -668,9 +720,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        serviceIntent = new Intent(this, MyService.class);
-        startService(serviceIntent);
 
         feedings = new ArrayList<>();
         vitamins = new ArrayList<>();
@@ -807,6 +856,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
         }
 
+        // Click handler for the Iron Input button for twin 1 Adds 1 count to the current day to reach a maximum of 2. Sends the data to the API
         ironBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -817,10 +867,11 @@ public class MainActivity extends AppCompatActivity {
 
                 if(currentiron1 != null && currentiron1.getDay().equals(jourfer)) {
                     if(currentiron1.getCount() ==2) {
-                        //nothing to do but inform the user if vitamins were already given today
+                        //nothing to do but inform the user if iron was already given twice today
                         Toast.makeText(getApplicationContext(), "Fer déjà donné 2 fois aujourd'hui", Toast.LENGTH_LONG).show();
                     }
                     if(currentiron1.getCount() ==1) {
+                        //Iron was given only once today : update today's data with incremented iron counter
                         currentiron1.setCount(2);
                         ironinputs.get(ironindex1).setCount(2);
                         String bouton1 = "  Fer : " + currentiron1.getDay() + " (" + currentiron1.getCount() +")  ";
@@ -852,6 +903,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 else {
+
+                    //first Iron input of the day : create new data entry for today
                     iron ironjour1 = new iron("agathe",jourfer,1);
                     ironinputs.add(ironjour1);
                     String json = new Gson().toJson(ironinputs);
@@ -886,6 +939,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        //same as ironBttn1
         ironBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1427,7 +1481,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopService(serviceIntent);
+
+        cancelAlarm();
+
+        if(liveEvents!=null) {liveEvents.clear();}
+
+        if(timer1!=null) {timer1.cancel();}
+        if(timer2!=null) {timer2.cancel();}
 
         //cleanup just like when app is dying because the back button behavior and the delete app from recent activity is different
         final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
