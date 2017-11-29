@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.service.notification.StatusBarNotification;
@@ -104,7 +106,8 @@ public class twinTrackerService extends IntentService {
                                 .setWhen(livetwin1.getStartTime())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
                                 .setUsesChronometer(false)
                                 .setContentTitle("Agathe")
-                                .setVibrate(new long[]{0, 300, 100, 300})
+                                .setVibrate(new long[]{0, 1000})
+                                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                                 .setContentText("Têtée en cours")
                                 .setContentIntent(contentIntent)
                                 .setAutoCancel(true);
@@ -137,7 +140,8 @@ public class twinTrackerService extends IntentService {
                                 .setWhen(livetwin2.getStartTime())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
                                 .setUsesChronometer(false)
                                 .setContentTitle("Zoé")
-                                .setVibrate(new long[]{0, 300, 100, 300})
+                                .setVibrate(new long[]{0, 1000})
+                                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                                 .setContentText("Têtée en cours")
                                 .setContentIntent(contentIntent)
                                 .setAutoCancel(true);

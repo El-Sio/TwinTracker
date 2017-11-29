@@ -18,6 +18,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean ongoing1,ongoing2;
     public static String started1,started2;
     public static long starttime1, starttime2;
+    public static Boolean needsrefresh;
 
     // Drawer menu items
 
@@ -137,6 +139,66 @@ public class MainActivity extends AppCompatActivity {
         alarm.cancel(pIntent);
     }
 
+    public void refreshdata() {
+
+
+        //test for network
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()) {
+
+            //empty datasets
+            feedings.clear();
+            vitamins.clear();
+            ironinputs.clear();
+            liveEvents.clear();
+            ironindex1 = 0;
+            ironindex2 = 0;
+
+            //asynchronously calls the API
+
+            //feedings
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJson(object);
+                }
+            }).execute(GET_DATA_URL);
+
+            //Vitamins
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonvitamin(object);
+                }
+            }).execute(GET_VITAMIN_DATA_URL);
+
+            //iron
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonIron(object);
+                }
+            }).execute(GET_IRON_DATA_URL);
+
+            //get Live Feeds (remote ongoing feedings)
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonLiveFeed(object);
+                }
+            }).execute(GET_LIVEFEED_DATA_URL);
+
+            needsrefresh = false;
+        }
+        //if no network, warn user with toast
+        if (networkInfo == null || !networkInfo.isConnected()) {
+            Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
     //Populate the drawer menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -160,59 +222,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_sync: {
 
-                //test for network
-                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-                if (networkInfo != null && networkInfo.isConnected()) {
-
-                    //empty datasets
-                    feedings.clear();
-                    vitamins.clear();
-                    ironinputs.clear();
-                    liveEvents.clear();
-                    ironindex1 = 0;
-                    ironindex2 = 0;
-
-                    //asynchronously calls the API
-
-                    //feedings
-                    new DownloadWebpageTask(new AsyncResult() {
-                        @Override
-                        public void onResult(JSONArray object) {
-                            processJson(object);
-                        }
-                    }).execute(GET_DATA_URL);
-
-                    //Vitamins
-                    new DownloadWebpageTask(new AsyncResult() {
-                        @Override
-                        public void onResult(JSONArray object) {
-                            processJsonvitamin(object);
-                        }
-                    }).execute(GET_VITAMIN_DATA_URL);
-
-                    //iron
-                    new DownloadWebpageTask(new AsyncResult() {
-                        @Override
-                        public void onResult(JSONArray object) {
-                            processJsonIron(object);
-                        }
-                    }).execute(GET_IRON_DATA_URL);
-
-                    //get Live Feeds (remote ongoing feedings)
-                    new DownloadWebpageTask(new AsyncResult() {
-                        @Override
-                        public void onResult(JSONArray object) {
-                            processJsonLiveFeed(object);
-                        }
-                    }).execute(GET_LIVEFEED_DATA_URL);
-
-                }
-                //if no network, warn user with toast
-                if (networkInfo == null || !networkInfo.isConnected()) {
-                    Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
-                }
+                refreshdata();
                 return true;
             }
             case R.id.action_edit: {
@@ -324,27 +334,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-
-        if(this.isFinishing()) {
-            //The app is really terminating, reset all remaining timers
-
-            final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-            final SharedPreferences.Editor editor = settings.edit();
-            editor.putBoolean("ongoing1", false);
-            editor.putBoolean("ongoing2", false);
-            editor.apply();
-        }
-        else {
-            // App Not Dying, do noting because on pause was called first and on resume will be called next
-        }
-
+        Log.i("bugrelou", "debut de onstop");
+        Log.i("bugrelou", needsrefresh.toString());
     }
 
     //This is called when the app goes into the background. Timer status are stored in preferences
     @Override
     protected void onPause() {
         super.onPause();
-        final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        needsrefresh = true;
+
+        Log.i("bugrelou", "debut de onpause");
+        Log.i("bugrelou", needsrefresh.toString());
+
+        /*final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         final SharedPreferences.Editor editor = settings.edit();
         if(timer1!=null) {
             started1 = twinTimerTask1.getStartDate();
@@ -369,7 +372,7 @@ public class MainActivity extends AppCompatActivity {
             ongoing2 = false;
             editor.putBoolean("ongoing2", false);
             editor.apply();
-        }
+        }*/
     }
 
     //This is called when app retunrs in foreground, timers are restarted according to their status on leaving read from preferences
@@ -377,6 +380,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+
+        Log.i("bugrelou","début de on resume");
+        Log.i("bugrelou", needsrefresh.toString());
+
+        /*
         final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         ongoing1 = settings.getBoolean("ongoing1",false);
         ongoing2 = settings.getBoolean("ongoing2", false);
@@ -396,23 +404,12 @@ public class MainActivity extends AppCompatActivity {
                 timer2.schedule(twinTimerTask2, 1000, 1000);
                 strtBttn2.setText(R.string.pause);
             }
-        }
+        } */
 
         //refresh data
-        //test for network
-        /* ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-        if (networkInfo != null && networkInfo.isConnected()) {
-            liveEvents.clear();
-            //get Live Feeds (remote ongoing feedings)
-            new DownloadWebpageTask(new AsyncResult() {
-                @Override
-                public void onResult(JSONArray object) {
-                    processJsonLiveFeed(object);
-                }
-            }).execute(GET_LIVEFEED_DATA_URL);
-        } */
+        if(needsrefresh) {
+            refreshdata();
+        }
 
 
         }
@@ -721,6 +718,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        needsrefresh = true;
+
+        Log.i("bugrelou","début de on create");
+        Log.i("bugrelou", needsrefresh.toString());
+
         feedings = new ArrayList<>();
         vitamins = new ArrayList<>();
         ironinputs = new ArrayList<>();
@@ -817,6 +819,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         if(networkInfo != null && networkInfo.isConnected()) {
+
+
+            needsrefresh = false;
 
             //get Feeding data
             new DownloadWebpageTask(new AsyncResult() {
@@ -1476,11 +1481,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        Log.i("bugrelou","fin de on create");
+        Log.i("bugrelou", needsrefresh.toString());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        needsrefresh = true;
+        Log.i("bugrelou", "debut de ondestroy");
+        Log.i("bugrelou", needsrefresh.toString());
 
         cancelAlarm();
 
