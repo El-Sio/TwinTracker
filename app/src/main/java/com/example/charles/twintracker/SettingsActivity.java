@@ -58,6 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
         twin1input = (EditText)findViewById(R.id.twin1inputtext);
         twin2input = (EditText)findViewById(R.id.twin2inputtext);
         notificationSwitch = (Switch)findViewById(R.id.notifswitch);
+        notificationSwitch.setChecked(false);
 
         //API ressources
         preferences = new ArrayList<>();
@@ -113,7 +114,7 @@ public class SettingsActivity extends AppCompatActivity {
             if(myindex !=-1) {
                 shouldNotify = preferences.get(myindex).getShouldnotify();
                 notificationSwitch.setOnCheckedChangeListener (null);
-                notificationSwitch.setChecked(true);
+                notificationSwitch.setChecked(shouldNotify);
                 notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     liveFeed liveTwin1, liveTwin2;
     iron currentiron1,currentiron2;
     int ironindex1,ironindex2,liveTwin1index,liveTwin2index, myindex;
+    Boolean shouldNotify;
 
     //Time objects for tracking
     Timer timer1, timer2;
@@ -752,6 +753,7 @@ public class MainActivity extends AppCompatActivity {
 
                 twin1label.setText(preferences.get(myindex).getTwin1name());
                 twin2label.setText(preferences.get(myindex).getTwin2name());
+                shouldNotify = preferences.get(myindex).getShouldnotify();
             }
 
         } catch (JSONException e) {
@@ -767,6 +769,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         needsrefresh = true;
+        shouldNotify = true;
 
         Log.i("bugrelou","début de on create");
         Log.i("bugrelou", needsrefresh.toString());
@@ -1214,14 +1217,16 @@ public class MainActivity extends AppCompatActivity {
                     strtBttn1.setText(R.string.pause);
                     txtCurrentCount1.setText("");
                     txtCurrentDuration1.setText("");
-                    android.support.v4.app.NotificationCompat.Builder mnbuilder = new NotificationCompat.Builder(MainActivity.this)
-                            .setSmallIcon(R.mipmap.ic_notif)
-                            .setWhen(System.currentTimeMillis())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
-                            .setUsesChronometer(true)
-                            .setContentTitle("Agathe")
-                            .setContentText("Têtée en cours")
-                            .setContentIntent(contentIntent);
-                    mNotificationManager.notify(1,mnbuilder.build());
+                    if(shouldNotify) {
+                        android.support.v4.app.NotificationCompat.Builder mnbuilder = new NotificationCompat.Builder(MainActivity.this)
+                                .setSmallIcon(R.mipmap.ic_notif)
+                                .setWhen(System.currentTimeMillis())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
+                                .setUsesChronometer(true)
+                                .setContentTitle("Agathe")
+                                .setContentText("Têtée en cours")
+                                .setContentIntent(contentIntent);
+                        mNotificationManager.notify(1, mnbuilder.build());
+                    }
 
                     //inform the server that tiwn 1 is being fed
                     liveTwin1.setOngoing(true);
@@ -1287,14 +1292,16 @@ public class MainActivity extends AppCompatActivity {
                     strtBttn2.setText(R.string.pause);
                     txtCurrentCount2.setText("");
                     txtCurrentDuration2.setText("");
-                    android.support.v4.app.NotificationCompat.Builder mnbuilder = new NotificationCompat.Builder(MainActivity.this)
-                            .setSmallIcon(R.mipmap.ic_notif)
-                            .setWhen(System.currentTimeMillis())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
-                            .setUsesChronometer(true)
-                            .setContentTitle("Zoé")
-                            .setContentText("Têtée en cours")
-                            .setContentIntent(contentIntent);
-                    mNotificationManager.notify(2,mnbuilder.build());
+                    if(shouldNotify) {
+                        android.support.v4.app.NotificationCompat.Builder mnbuilder = new NotificationCompat.Builder(MainActivity.this)
+                                .setSmallIcon(R.mipmap.ic_notif)
+                                .setWhen(System.currentTimeMillis())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
+                                .setUsesChronometer(true)
+                                .setContentTitle("Zoé")
+                                .setContentText("Têtée en cours")
+                                .setContentIntent(contentIntent);
+                        mNotificationManager.notify(2, mnbuilder.build());
+                    }
 
                     //inform the server that tiwn 2 is being fed
                     liveTwin2.setOngoing(true);
