@@ -25,7 +25,7 @@
     <string name="local_service_started">service démarré</string>
     <string name="local_service_stopped">Service arrêté</string>
     <string name="local_service_label">Mon Service</string>
-    <string name="notifications">Accepter les notifications</string>
+    <string name="notifications">Accepter les notifications :</string>
     <string name="twin1inputlabel">Nom du jumeau 1 :</string>
     <string name="twin2inputlabel">Nom du jumeau 2 :</string>
 </resources>

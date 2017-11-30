@@ -27,9 +27,7 @@
 
     <Switch
         android:id="@+id/notifswitch"
-        android:showText="true"
-        android:textOn="O"
-        android:textOff="N"
+        android:showText="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
