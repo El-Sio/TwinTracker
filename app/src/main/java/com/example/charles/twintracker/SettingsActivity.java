@@ -169,6 +169,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             twinSettings mysettings = new twinSettings(uuid,notificationSwitch.isChecked(),twin1input.getText().toString(),twin2input.getText().toString());
             preferences.add(mysettings);
+            myindex = preferences.size();
         }
         //encode this in JSON
         String json = new Gson().toJson(preferences);

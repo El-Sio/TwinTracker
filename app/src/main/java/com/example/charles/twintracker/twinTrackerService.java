@@ -27,9 +27,14 @@ import java.util.ArrayList;
 public class twinTrackerService extends IntentService {
 
     public static final String GET_LIVEFEED_DATA_URL = "http://japansio.info/api/livefeed.json";
+    public static final String GET_SETTINGS_URL = "http://japansio.info/api/settings.json";
     liveFeed livetwin1,livetwin2;
     ArrayList<liveFeed> liveEvents;
+    ArrayList<twinSettings> preferences;
     String lastdata1, lastdata2;
+    Boolean shouldNotify;
+    int myindex;
+    String uuid;
 
     private void processJsonLiveFeed(JSONArray object) {
 
@@ -100,18 +105,20 @@ public class twinTrackerService extends IntentService {
                     }
 
                     if (!wasshown) {
-                        Log.i("Debug", "Je notifie !");
-                        android.support.v4.app.NotificationCompat.Builder mnbuilder = new NotificationCompat.Builder(twinTrackerService.this)
-                                .setSmallIcon(R.mipmap.ic_notif)
-                                .setWhen(livetwin1.getStartTime())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
-                                .setUsesChronometer(false)
-                                .setContentTitle("Agathe")
-                                .setVibrate(new long[]{0, 1000})
-                                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                                .setContentText("Têtée en cours")
-                                .setContentIntent(contentIntent)
-                                .setAutoCancel(true);
-                        mNotificationManager.notify(11, mnbuilder.build());
+                        if(shouldNotify) {
+                            Log.i("Debug", "Je notifie !");
+                            android.support.v4.app.NotificationCompat.Builder mnbuilder = new NotificationCompat.Builder(twinTrackerService.this)
+                                    .setSmallIcon(R.mipmap.ic_notif)
+                                    .setWhen(livetwin1.getStartTime())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
+                                    .setUsesChronometer(false)
+                                    .setContentTitle("Agathe")
+                                    .setVibrate(new long[]{0, 1000})
+                                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                                    .setContentText("Têtée en cours")
+                                    .setContentIntent(contentIntent)
+                                    .setAutoCancel(true);
+                            mNotificationManager.notify(11, mnbuilder.build());
+                        }
                     }
                 }
             }
@@ -135,17 +142,19 @@ public class twinTrackerService extends IntentService {
                     if (!wasshown) {
 
                         Log.i("Debug", "Je notifie !");
-                        android.support.v4.app.NotificationCompat.Builder mnbuilder = new NotificationCompat.Builder(twinTrackerService.this)
-                                .setSmallIcon(R.mipmap.ic_notif)
-                                .setWhen(livetwin2.getStartTime())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
-                                .setUsesChronometer(false)
-                                .setContentTitle("Zoé")
-                                .setVibrate(new long[]{0, 1000})
-                                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                                .setContentText("Têtée en cours")
-                                .setContentIntent(contentIntent)
-                                .setAutoCancel(true);
-                        mNotificationManager.notify(21, mnbuilder.build());
+                        if(shouldNotify) {
+                            android.support.v4.app.NotificationCompat.Builder mnbuilder = new NotificationCompat.Builder(twinTrackerService.this)
+                                    .setSmallIcon(R.mipmap.ic_notif)
+                                    .setWhen(livetwin2.getStartTime())  // the time stamp, you will probably use System.currentTimeMillis() for most scenarios
+                                    .setUsesChronometer(false)
+                                    .setContentTitle("Zoé")
+                                    .setVibrate(new long[]{0, 1000})
+                                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                                    .setContentText("Têtée en cours")
+                                    .setContentIntent(contentIntent)
+                                    .setAutoCancel(true);
+                            mNotificationManager.notify(21, mnbuilder.build());
+                        }
                     }
                 }
             }
@@ -180,6 +189,40 @@ public class twinTrackerService extends IntentService {
         }
     }
 
+    private void processJsonSettings(JSONArray object) {
+
+        try {
+
+            //read from the end of the dataset to display last feedings first
+            for(int r=0; r< object.length(); ++r) {
+                JSONObject row = object.getJSONObject(r);
+                String user = row.getString("user");
+                String twin1name = row.getString("twin1name");
+                String twin2name = row.getString("twin2name");
+                Boolean notificationchoice = row.getBoolean("shouldnotify");
+                preferences.add(new twinSettings(user,notificationchoice, twin1name, twin2name));
+            }
+
+            int f = preferences.size();
+            for(int j=0; j<f; ++j) {
+                if(preferences.get(j).getUser().equals(uuid)) {
+                    myindex = j;
+                }
+            }
+
+            if(myindex !=-1) {
+
+                shouldNotify = preferences.get(myindex).getShouldnotify();
+
+            }
+
+        } catch (JSONException e) {
+            //In case parsing goes wrong
+            Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
     public twinTrackerService() {
         super("twinTrackerService");
     }
@@ -188,6 +231,9 @@ public class twinTrackerService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         // Do the task here
 
+        uuid = Installation.id(this);
+        shouldNotify = true;
+
         if(intent !=null && intent.getExtras() !=null) {
             lastdata1 = intent.getExtras().getString("lastdata1");
             lastdata2 = intent.getExtras().getString("lastdata2");
@@ -195,6 +241,8 @@ public class twinTrackerService extends IntentService {
 
         liveEvents = new ArrayList<>();
         liveEvents.clear();
+        preferences = new ArrayList<>();
+        preferences.clear();
 
         //Check for network and fetch data from API on creation of the page to fill the "last data" fields and vitamin buttons
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -202,6 +250,15 @@ public class twinTrackerService extends IntentService {
 
 
         if(networkInfo != null && networkInfo.isConnected()) {
+
+            //get Preferences first
+            //get settings (remote ongoing feedings)
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonSettings(object);
+                }
+            }).execute(GET_SETTINGS_URL);
 
             //get Live Feeds (remote ongoing feedings)
             new DownloadWebpageTask(new AsyncResult() {

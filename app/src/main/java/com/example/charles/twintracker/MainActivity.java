@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     //standard UI items
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2;
-    TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2;
+    TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2,twin1label, twin2label;
 
     //Popup Items
     String selected_name;
@@ -63,13 +64,14 @@ public class MainActivity extends AppCompatActivity {
     AlertDialog.Builder feeding_input;
 
     //Structured data Filled from the API
+    ArrayList<twinSettings> preferences;
     ArrayList<feeding> feedings;
     ArrayList<vitamin> vitamins;
     ArrayList<iron> ironinputs;
     ArrayList<liveFeed> liveEvents;
     liveFeed liveTwin1, liveTwin2;
     iron currentiron1,currentiron2;
-    int ironindex1,ironindex2,liveTwin1index,liveTwin2index;
+    int ironindex1,ironindex2,liveTwin1index,liveTwin2index, myindex;
 
     //Time objects for tracking
     Timer timer1, timer2;
@@ -84,13 +86,17 @@ public class MainActivity extends AppCompatActivity {
     public static final String GET_IRON_DATA_URL = "http://japansio.info/api/iron.json";
     public static final String GET_LIVEFEED_DATA_URL = "http://japansio.info/api/livefeed.json";
     public static final String PUT_LIVEFEED_DATA_URL = "http://japansio.info/api/putlivefeed.php";
+    public static final String GET_SETTINGS_URL = "http://japansio.info/api/settings.json";
+
+    String uuid;
 
     //Using preferences to save data locally, namely status of timers to handle App being sent to background
     public static final String PREFS_NAME = "lastdata";
 
-    public static boolean ongoing1,ongoing2;
+    /*public static boolean ongoing1,ongoing2;
     public static String started1,started2;
     public static long starttime1, starttime2;
+    */
     public static Boolean needsrefresh;
 
     // Drawer menu items
@@ -105,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     private String[] mmenutTitles;
 
     //triggers updates in background on a regular basis
-    // Setup a recurring alarm every half hour
+    // Setup a recurring alarm every minute
     public void scheduleAlarm(liveFeed live1, liveFeed live2) {
         // Construct an intent that will execute the AlarmReceiver
         Intent intent = new Intent(getApplicationContext(), twinTrackerAlarmReceiver.class);
@@ -721,6 +727,40 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void processJsonSettings(JSONArray object) {
+
+        try {
+
+            //read from the end of the dataset to display last feedings first
+            for(int r=0; r< object.length(); ++r) {
+                JSONObject row = object.getJSONObject(r);
+                String user = row.getString("user");
+                String twin1name = row.getString("twin1name");
+                String twin2name = row.getString("twin2name");
+                Boolean notificationchoice = row.getBoolean("shouldnotify");
+                preferences.add(new twinSettings(user,notificationchoice, twin1name, twin2name));
+            }
+
+            int f = preferences.size();
+            for(int j=0; j<f; ++j) {
+                if(preferences.get(j).getUser().equals(uuid)) {
+                    myindex = j;
+                }
+            }
+
+            if(myindex !=-1) {
+
+                twin1label.setText(preferences.get(myindex).getTwin1name());
+                twin2label.setText(preferences.get(myindex).getTwin2name());
+            }
+
+        } catch (JSONException e) {
+            //In case parsing goes wrong
+            Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
     //Create the main activity page
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -737,6 +777,10 @@ public class MainActivity extends AppCompatActivity {
         ironindex1 = ironindex2 = 0;
         liveEvents = new ArrayList<>();
         liveTwin1index = liveTwin2index =0;
+        preferences = new ArrayList<>();
+        myindex = -1;
+
+        uuid = Installation.id(this);
 
         setContentView(R.layout.activity_main);
 
@@ -810,6 +854,9 @@ public class MainActivity extends AppCompatActivity {
         ironBttn1 = (Button)findViewById(R.id.iron_button_1);
         ironBttn2 = (Button)findViewById(R.id.iron_button_2);
 
+        twin1label = (TextView)findViewById(R.id.twin1);
+        twin2label = (TextView)findViewById(R.id.twin2);
+
         txtCurrentCount1 = (TextView)findViewById(R.id.current_timer_1);
         txtCurrentCount2 = (TextView)findViewById(R.id.current_timer_2);
         txtLastDate1 = (TextView)findViewById(R.id.last1_time);
@@ -829,6 +876,14 @@ public class MainActivity extends AppCompatActivity {
 
 
             needsrefresh = false;
+
+            //get settings (remote ongoing feedings)
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonSettings(object);
+                }
+            }).execute(GET_SETTINGS_URL);
 
             //get Feeding data
             new DownloadWebpageTask(new AsyncResult() {
@@ -861,6 +916,8 @@ public class MainActivity extends AppCompatActivity {
                     processJsonLiveFeed(object);
                 }
             }).execute(GET_LIVEFEED_DATA_URL);
+
+
 
         }
         if(networkInfo == null || !networkInfo.isConnected()) {
