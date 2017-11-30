@@ -305,6 +305,9 @@ public class MainActivity extends AppCompatActivity {
             if(position==1) {
                 displayHistory(view);
             }
+            if(position==2) {
+                displaySettings(view);
+            }
         }
     }
 
@@ -329,6 +332,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    //Calles Settings Page
+    public void displaySettings(View view) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
 
     //This is called when the app is being killed. Timer status are deleted from preferences
     @Override
@@ -741,7 +749,7 @@ public class MainActivity extends AppCompatActivity {
         final ActionBar actionBar = getSupportActionBar();
 
         mTitle = mDrawerTitle = "Twin Tracker";
-        mmenutTitles = new String[]{"Accueil", "Historique"};
+        mmenutTitles = new String[]{"Accueil", "Historique","Réglages"};
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
@@ -783,7 +791,6 @@ public class MainActivity extends AppCompatActivity {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         final Intent notificationIntent = new Intent(this,   MainActivity.class);
-        notificationIntent.putExtra("extra", "value");
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.setAction("android.intent.action.MAIN");

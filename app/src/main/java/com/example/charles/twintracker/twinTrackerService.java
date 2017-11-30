@@ -150,6 +150,28 @@ public class twinTrackerService extends IntentService {
                 }
             }
 
+            //Show notification for each twin if it has been more than 4h since the last feeding
+
+            if(livetwin1!=null && !livetwin1.getOngoing()) {
+                //pas de têtée en cours
+                Log.i("Debug", "pas de têtée en cours");
+                if(!livetwin1.getStartDate().equals(lastdata1)) {
+                    //c'est une nouvelle têtée qui doit donc être terminée, la notification peut disparaître.
+                    Log.i("Debug","mais nouvelle donnée donc têtée terminée. Je fais disparaitre la notification");
+                    mNotificationManager.cancel(11);
+                }
+            }
+
+            if(livetwin2!=null && !livetwin2.getOngoing()) {
+                //pas de têtée en cours
+                Log.i("Debug", "pas de têtée en cours");
+                if(!livetwin2.getStartDate().equals(lastdata2)) {
+                    //c'est une nouvelle têtée qui doit donc être terminée, la notification peut disparaître.
+                    Log.i("debug","mais nouvelle donnée donc têtée terminée. Je fais disparaitre la notification");
+                    mNotificationManager.cancel(21);
+                }
+            }
+
         }
         catch (JSONException e) {
             //In case parsing goes wrong
