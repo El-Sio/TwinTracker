@@ -5,7 +5,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -200,7 +199,8 @@ public class twinTrackerService extends IntentService {
                 String twin1name = row.getString("twin1name");
                 String twin2name = row.getString("twin2name");
                 Boolean notificationchoice = row.getBoolean("shouldnotify");
-                preferences.add(new twinSettings(user,notificationchoice, twin1name, twin2name));
+                Boolean autostopchoice = row.getBoolean("autoStop");
+                preferences.add(new twinSettings(user,notificationchoice, autostopchoice, twin1name, twin2name));
             }
 
             int f = preferences.size();

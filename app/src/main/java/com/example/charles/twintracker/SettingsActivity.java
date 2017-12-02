@@ -29,8 +29,8 @@ public class SettingsActivity extends AppCompatActivity {
     ProgressDialog loadingdialog;
     Button savesettingsBttn;
     EditText twin1input,twin2input;
-    Boolean shouldNotify;
-    Switch notificationSwitch;
+    Boolean shouldNotify, autostop;
+    Switch notificationSwitch, autostopswitch;
     ArrayList<twinSettings> preferences;
     int myindex;
     public static final String GET_SETTINGS_URL = "http://japansio.info/api/settings.json";
@@ -61,6 +61,8 @@ public class SettingsActivity extends AppCompatActivity {
         twin2input = (EditText)findViewById(R.id.twin2inputtext);
         notificationSwitch = (Switch)findViewById(R.id.notifswitch);
         notificationSwitch.setChecked(false);
+        autostopswitch = (Switch)findViewById(R.id.autostopswitch);
+        autostopswitch.setChecked(false);
 
         //API ressources
         preferences = new ArrayList<>();
@@ -90,6 +92,16 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        autostopswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(autostopswitch.isChecked()) {
+                    autostop = true;
+                }
+                else autostop = false;
+            }
+        });
+
     }
 
     private void processJson(JSONArray object) {
@@ -103,7 +115,8 @@ public class SettingsActivity extends AppCompatActivity {
                 String twin1name = row.getString("twin1name");
                 String twin2name = row.getString("twin2name");
                 Boolean notificationchoice = row.getBoolean("shouldnotify");
-                preferences.add(new twinSettings(user,notificationchoice, twin1name, twin2name));
+                Boolean autostopchoice = row.getBoolean("autoStop");
+                preferences.add(new twinSettings(user,notificationchoice, autostopchoice, twin1name, twin2name));
             }
 
             int f = preferences.size();
@@ -124,6 +137,19 @@ public class SettingsActivity extends AppCompatActivity {
                             shouldNotify = true;
                         }
                         else shouldNotify = false;
+                    }
+                });
+
+                autostop = preferences.get(myindex).getAutoStop();
+                autostopswitch.setOnCheckedChangeListener (null);
+                autostopswitch.setChecked(autostop);
+                autostopswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        if(autostopswitch.isChecked()) {
+                            autostop = true;
+                        }
+                        else autostop = false;
                     }
                 });
                 twin1input.setText(preferences.get(myindex).getTwin1name());
@@ -173,12 +199,13 @@ public class SettingsActivity extends AppCompatActivity {
         //save settings in new object if new user, or in user's position otherwise
         if(myindex != -1) {
             preferences.get(myindex).setShouldnotify(notificationSwitch.isChecked());
+            preferences.get(myindex).setAutoStop(autostopswitch.isChecked());
             preferences.get(myindex).setTwin1name(twin1input.getText().toString());
             preferences.get(myindex).setTwin2name(twin2input.getText().toString());
         }
         else {
 
-            twinSettings mysettings = new twinSettings(uuid,notificationSwitch.isChecked(),twin1input.getText().toString(),twin2input.getText().toString());
+            twinSettings mysettings = new twinSettings(uuid,notificationSwitch.isChecked(),autostopswitch.isChecked(),twin1input.getText().toString(),twin2input.getText().toString());
             preferences.add(mysettings);
             myindex = preferences.size();
         }

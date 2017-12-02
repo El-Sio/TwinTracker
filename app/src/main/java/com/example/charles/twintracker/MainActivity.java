@@ -28,7 +28,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -75,11 +74,14 @@ public class MainActivity extends AppCompatActivity {
     liveFeed liveTwin1, liveTwin2;
     iron currentiron1,currentiron2;
     int ironindex1,ironindex2,liveTwin1index,liveTwin2index, myindex;
-    Boolean shouldNotify;
+    Boolean shouldNotify,autostop;
 
     //Time objects for tracking
     Timer timer1, timer2;
     TwinTimerTask twinTimerTask1, twinTimerTask2;
+
+    //notifications
+    public NotificationManager mNotificationManager;
 
     //APIResources
     public static final String GET_DATA_URL = "http://japansio.info/api/feedings.json";
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String PUT_LIVEFEED_DATA_URL = "http://japansio.info/api/putlivefeed.php";
     public static final String GET_SETTINGS_URL = "http://japansio.info/api/settings.json";
 
+    //user ID for settings per client
     String uuid;
 
     //Using preferences to save data locally, namely status of timers to handle App being sent to background
@@ -371,33 +374,6 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i("bugrelou", "debut de onpause");
         Log.i("bugrelou", needsrefresh.toString());
-
-        /*final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        final SharedPreferences.Editor editor = settings.edit();
-        if(timer1!=null) {
-            started1 = twinTimerTask1.getStartDate();
-            starttime1 = twinTimerTask1.getStartTime();
-            ongoing1 = true;
-            editor.putBoolean("ongoing1",true);
-            editor.apply();
-        }
-        if(timer1 == null) {
-            ongoing1 = false;
-            editor.putBoolean("ongoing1", false);
-            editor.apply();
-        }
-        if(timer2!=null) {
-            ongoing2 = true;
-            editor.putBoolean("ongoing2",true);
-            editor.apply();
-            started2 = twinTimerTask2.getStartDate();
-            starttime2 = twinTimerTask2.getStartTime();
-        }
-        if(timer2 == null) {
-            ongoing2 = false;
-            editor.putBoolean("ongoing2", false);
-            editor.apply();
-        }*/
     }
 
     //This is called when app retunrs in foreground, timers are restarted according to their status on leaving read from preferences
@@ -408,34 +384,9 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i("bugrelou","début de on resume");
         Log.i("bugrelou", needsrefresh.toString());
-
-        /*
-        final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        ongoing1 = settings.getBoolean("ongoing1",false);
-        ongoing2 = settings.getBoolean("ongoing2", false);
-        if(ongoing1) {
-            if(timer1==null) {
-                timer1 = new Timer();
-                twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1, starttime1 ,started1);
-                timer1.schedule(twinTimerTask1, 1000, 1000);
-                strtBttn1.setText(R.string.pause);
-            }
-
-        }
-        if(ongoing2) {
-            if(timer2==null) {
-                timer2 = new Timer();
-                twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2,starttime2 ,started2);
-                timer2.schedule(twinTimerTask2, 1000, 1000);
-                strtBttn2.setText(R.string.pause);
-            }
-        } */
-
-        //refresh data
         if(needsrefresh) {
             refreshdata();
         }
-
 
         }
 
@@ -750,7 +701,8 @@ public class MainActivity extends AppCompatActivity {
                 String twin1name = row.getString("twin1name");
                 String twin2name = row.getString("twin2name");
                 Boolean notificationchoice = row.getBoolean("shouldnotify");
-                preferences.add(new twinSettings(user,notificationchoice, twin1name, twin2name));
+                Boolean autostopchoice = row.getBoolean("autoStop");
+                preferences.add(new twinSettings(user,notificationchoice, autostopchoice, twin1name, twin2name));
             }
 
             int f = preferences.size();
@@ -765,6 +717,7 @@ public class MainActivity extends AppCompatActivity {
                 twin1label.setText(preferences.get(myindex).getTwin1name());
                 twin2label.setText(preferences.get(myindex).getTwin2name());
                 shouldNotify = preferences.get(myindex).getShouldnotify();
+                autostop = preferences.get(myindex).getAutoStop();
             }
 
         } catch (JSONException e) {
@@ -781,6 +734,7 @@ public class MainActivity extends AppCompatActivity {
 
         needsrefresh = true;
         shouldNotify = true;
+        autostop = false;
 
         Log.i("bugrelou","début de on create");
         Log.i("bugrelou", needsrefresh.toString());
@@ -845,8 +799,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //notification
-        final NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         final Intent notificationIntent = new Intent(this,   MainActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -1228,6 +1181,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else {
                     timer1 = new Timer();
+
                     long now = System.currentTimeMillis();
                     twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1);
                     timer1.schedule(twinTimerTask1, 1000, 1000);
@@ -1303,6 +1257,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else {
                     timer2 = new Timer();
+
+
                     long now = System.currentTimeMillis();
                     twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2);
                     timer2.schedule(twinTimerTask2, 1000, 1000);
@@ -1352,7 +1308,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Record data of timer N1
-        //TODO refactor this to change Stop into Record or save
         //If timer is running or data not empty (stopped by user), display a popup to confirm saving and send the data to the API in JSON through a POST request.
         stopBttn1.setOnClickListener(new View.OnClickListener() {
             @Override

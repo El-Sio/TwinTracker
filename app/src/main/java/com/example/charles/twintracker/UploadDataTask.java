@@ -1,6 +1,7 @@
 package com.example.charles.twintracker;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -21,9 +22,9 @@ import java.nio.charset.StandardCharsets;
     protected String doInBackground(String... params) {
         try {
             postData(params[0],params[1]);
-            System.out.println("post successful");
+            Log.i("Network I/O", "post successful");
         } catch (IOException e) {
-            System.out.println("post request failed");
+            Log.i("Network I/O", "post request failed");
             e.printStackTrace();
         }
         return "done";
@@ -47,6 +48,6 @@ import java.nio.charset.StandardCharsets;
             wr.write( postData );
         }
 
-        System.out.println(conn.getResponseCode()+":"+conn.getResponseMessage());
+        Log.i("Network I/O", conn.getResponseCode() + " : " + conn.getResponseMessage());
     }
 }

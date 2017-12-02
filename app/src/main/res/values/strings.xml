@@ -28,4 +28,5 @@
     <string name="notifications">Accepter les notifications :</string>
     <string name="twin1inputlabel">Nom du jumeau 1 :</string>
     <string name="twin2inputlabel">Nom du jumeau 2 :</string>
+    <string name="autostop">Arrêt Automatique :</string>
 </resources>

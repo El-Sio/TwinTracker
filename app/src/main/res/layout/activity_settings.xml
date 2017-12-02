@@ -14,6 +14,28 @@
         android:minHeight="?attr/actionBarSize" />
 
     <TextView
+        android:id="@+id/autostoplabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/autostop"
+        android:textStyle="bold"
+        android:textSize="10pt"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/child_toolbar" />
+
+    <Switch
+        android:id="@+id/autostopswitch"
+        android:showText="false"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintLeft_toRightOf="@id/notiflabel"
+        app:layout_constraintTop_toBottomOf="@id/child_toolbar" />
+
+    <TextView
         android:id="@+id/notiflabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,7 +45,7 @@
         android:textStyle="bold"
         android:textSize="10pt"
         app:layout_constraintLeft_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/child_toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/autostoplabel" />
 
     <Switch
         android:id="@+id/notifswitch"
@@ -33,7 +55,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
         app:layout_constraintLeft_toRightOf="@id/notiflabel"
-        app:layout_constraintTop_toBottomOf="@id/child_toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/autostoplabel" />
 
     <TextView
         android:id="@+id/twin1inputlabel"
