@@ -3,6 +3,7 @@ package com.example.charles.twintracker;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     //standard UI items
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2,twin1label, twin2label;
+
+    ProgressDialog loadingdialog;
 
     //Popup Items
     String selected_name;
@@ -154,6 +157,13 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
+
+
+            loadingdialog = new ProgressDialog(this);
+            loadingdialog.setTitle("Chargement");
+            loadingdialog.setMessage("Merci de patienter pendant le chargement des données...");
+            loadingdialog.setCancelable(false); // disable dismiss by tapping outside of the dialog
+            loadingdialog.show();
 
             //empty datasets
             feedings.clear();
@@ -479,6 +489,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
+        loadingdialog.dismiss();
     }
 
     //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom vitamin object
@@ -879,6 +890,12 @@ public class MainActivity extends AppCompatActivity {
 
 
             needsrefresh = false;
+
+            loadingdialog = new ProgressDialog(this);
+            loadingdialog.setTitle("Chargement");
+            loadingdialog.setMessage("Merci de patienter pendant le chargement des données...");
+            loadingdialog.setCancelable(false); // disable dismiss by tapping outside of the dialog
+            loadingdialog.show();
 
             //get settings (remote ongoing feedings)
             new DownloadWebpageTask(new AsyncResult() {

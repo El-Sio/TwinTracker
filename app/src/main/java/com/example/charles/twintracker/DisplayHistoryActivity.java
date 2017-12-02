@@ -1,5 +1,6 @@
 package com.example.charles.twintracker;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -28,6 +29,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
     public static final String GET_DATA_URL = "http://japansio.info/api/feedings.json";
     ArrayList<feeding> feedings;
     ListView listview;
+    ProgressDialog loadingdialog;
 
     //Menu stuff : a single action menu in action bar to refresh the page
     //TODO implement support of pull to refresh widget on the ListView
@@ -61,6 +63,13 @@ public class DisplayHistoryActivity extends AppCompatActivity {
                 NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
                 if(networkInfo != null && networkInfo.isConnected()) {
+
+                    loadingdialog = new ProgressDialog(this);
+                    loadingdialog.setTitle("Chargement");
+                    loadingdialog.setMessage("Merci de patienter pendant le chargement des données...");
+                    loadingdialog.setCancelable(false); // disable dismiss by tapping outside of the dialog
+                    loadingdialog.show();
+
                     new DownloadWebpageTask(new AsyncResult() {
                         @Override
                         public void onResult(JSONArray object) {
@@ -122,6 +131,13 @@ public class DisplayHistoryActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if(networkInfo != null && networkInfo.isConnected()) {
+
+            loadingdialog = new ProgressDialog(this);
+            loadingdialog.setTitle("Chargement");
+            loadingdialog.setMessage("Merci de patienter pendant le chargement des données...");
+            loadingdialog.setCancelable(false); // disable dismiss by tapping outside of the dialog
+            loadingdialog.show();
+
             new DownloadWebpageTask(new AsyncResult() {
                 @Override
                 public void onResult(JSONArray object) {
@@ -171,5 +187,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            loadingdialog.dismiss();
         }
 }

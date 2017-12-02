@@ -1,5 +1,6 @@
 package com.example.charles.twintracker;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    ProgressDialog loadingdialog;
     Button savesettingsBttn;
     EditText twin1input,twin2input;
     Boolean shouldNotify;
@@ -133,6 +135,7 @@ public class SettingsActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
+        loadingdialog.dismiss();
     }
 
     private void getsettings() {
@@ -142,6 +145,13 @@ public class SettingsActivity extends AppCompatActivity {
 
 
         if(networkInfo != null && networkInfo.isConnected()) {
+
+
+            loadingdialog = new ProgressDialog(this);
+            loadingdialog.setTitle("Chargement");
+            loadingdialog.setMessage("Merci de patienter pendant le chargement des données...");
+            loadingdialog.setCancelable(false); // disable dismiss by tapping outside of the dialog
+            loadingdialog.show();
 
             //get Settings data
             new DownloadWebpageTask(new AsyncResult() {
