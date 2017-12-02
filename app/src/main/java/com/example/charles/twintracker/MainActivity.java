@@ -94,16 +94,13 @@ public class MainActivity extends AppCompatActivity {
     public static final String PUT_LIVEFEED_DATA_URL = "http://japansio.info/api/putlivefeed.php";
     public static final String GET_SETTINGS_URL = "http://japansio.info/api/settings.json";
 
-    //user ID for settings per client
+    //unique user ID for settings per client
     String uuid;
 
-    //Using preferences to save data locally, namely status of timers to handle App being sent to background
+    //Using preferences to save data locally, unused for npw
     public static final String PREFS_NAME = "lastdata";
 
-    /*public static boolean ongoing1,ongoing2;
-    public static String started1,started2;
-    public static long starttime1, starttime2;
-    */
+    //is the data displayed up-to-date ?
     public static Boolean needsrefresh;
 
     // Drawer menu items
@@ -144,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, 10000, pIntent);
     }
 
+    //Cancels background cheks if app is killed (only called @ OnDestroy)
     public void cancelAlarm() {
         Intent intent = new Intent(getApplicationContext(), twinTrackerAlarmReceiver.class);
         final PendingIntent pIntent = PendingIntent.getBroadcast(this, twinTrackerAlarmReceiver.REQUEST_CODE,
@@ -152,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         alarm.cancel(pIntent);
     }
 
+    //Method to fetch all data from the API.
     public void refreshdata() {
 
 
@@ -161,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (networkInfo != null && networkInfo.isConnected()) {
 
+            //if connected start by showing a loading dialog to avoid user interaction during loading (can take a few seconds on slow networks)
 
             loadingdialog = new ProgressDialog(this);
             loadingdialog.setTitle("Chargement");
@@ -210,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).execute(GET_LIVEFEED_DATA_URL);
 
+            //data is now up-to-date
             needsrefresh = false;
         }
         //if no network, warn user with toast
@@ -242,21 +243,24 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_sync: {
 
+                //force refresh data when the sync button is selected.
                 refreshdata();
                 return true;
             }
             case R.id.action_edit: {
+
+                //display a popup with 3 inputs to manually enter feeding data
+
+                //prepare the popup content
+                //the container
                 LayoutInflater factory = LayoutInflater.from(this);
                 final View feeding_input_form = factory.inflate(R.layout.feeding_form,null);
 
+                //the twin selector (dropdown is spinner in android)
                 select_name = (Spinner) feeding_input_form.findViewById(R.id.select_name);
-
-                // Create an ArrayAdapter using the string array and a default spinner layout
                 ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                         R.array.twins, android.R.layout.simple_spinner_item);
-                // Specify the layout to use when the list of choices appears
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                // Apply the adapter to the spinner
                 select_name.setAdapter(adapter);
 
                 select_name.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -271,22 +275,25 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+                //text inputs
                 start_input = (EditText) feeding_input_form.findViewById(R.id.start_input);
                 duration_input = (EditText)feeding_input_form.findViewById(R.id.duration_input);
+
+                //the popup itself
                 feeding_input = new AlertDialog.Builder(this);
                 feeding_input.setIcon(R.mipmap.ic_edit).setTitle("Enregistrer une têtée").setView(feeding_input_form).setPositiveButton("Enregistrer",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
-                                /* User clicked OK so do some stuff */
+                                /* User clicked OK so record the data */
                                 input_duration = duration_input.getText().toString();
                                 input_started = start_input.getText().toString();
 
+                                //send this data if network is present.
                                 ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                                 NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
                                 if(networkInfo != null && networkInfo.isConnected()) {
-                                //Toast.makeText(getApplicationContext(), selected_name + " / " + input_started + " / " + input_duration, Toast.LENGTH_SHORT).show();
                                 feedings.add(new feeding(selected_name,input_started,input_duration));
                                 String json = new Gson().toJson(feedings);
 
@@ -304,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
      /*
-     * User clicked cancel so do some stuff
+     * User clicked cancel so do nothing
      */
                             }
                         });
@@ -321,10 +328,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             selectItem(position);
-            //Menu Item navigates to history page
+            //Menu Item #1 navigates to history page
             if(position==1) {
                 displayHistory(view);
             }
+            //Menu Item #2 navigates to settings page
             if(position==2) {
                 displaySettings(view);
             }
@@ -352,13 +360,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    //Calles Settings Page
+    //Calles Settings Page by creating an instance of the SettingsActivity class
     public void displaySettings(View view) {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
 
-    //This is called when the app is being killed. Timer status are deleted from preferences
+    //This is called when the app is being sent to background but not killed and after onpause. not much to do
     @Override
     protected void onStop() {
         super.onStop();
@@ -366,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("bugrelou", needsrefresh.toString());
     }
 
-    //This is called when the app goes into the background. Timer status are stored in preferences
+    //This is called when the app goes into the background. Invalidate any data to force refresh when app returns to foreground
     @Override
     protected void onPause() {
         super.onPause();
@@ -376,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("bugrelou", needsrefresh.toString());
     }
 
-    //This is called when app retunrs in foreground, timers are restarted according to their status on leaving read from preferences
+    //This is called when app retunrs in foreground, timers are restarted according to their status on leaving read from the API (through a refresh)
     @Override
     protected void onResume() {
         super.onResume();
@@ -384,6 +392,8 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i("bugrelou","début de on resume");
         Log.i("bugrelou", needsrefresh.toString());
+
+        //only refresh in onResume when it's called before onCreate, otherwise data gets duplicated
         if(needsrefresh) {
             refreshdata();
         }
@@ -440,12 +450,16 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
+
+        //feedings is the largest dataset so we can assume all data is complete when parsing of feeding is complete, so Hide the progress popup.
         loadingdialog.dismiss();
     }
 
-    //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom vitamin object
+    //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom iron object
     private void processJsonIron(JSONArray object) {
         try {
+
+            //iron is needed twice a day so compare last input and count to current day.
 
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
@@ -591,6 +605,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom livefeed object
     private void processJsonLiveFeed(JSONArray object) {
 
         try {
@@ -646,10 +661,6 @@ public class MainActivity extends AppCompatActivity {
                     txtCurrentCount1.setText("");
                     txtCurrentDuration1.setText("");
                     strtBttn1.setText(R.string.start);
-                    final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-                    final SharedPreferences.Editor editor = settings.edit();
-                    editor.putBoolean("ongoing1", false);
-                    editor.apply();
                 }
             }
 
@@ -660,10 +671,6 @@ public class MainActivity extends AppCompatActivity {
                     txtCurrentCount2.setText("");
                     txtCurrentDuration2.setText("");
                     strtBttn2.setText(R.string.start);
-                    final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-                    final SharedPreferences.Editor editor = settings.edit();
-                    editor.putBoolean("ongoing2", false);
-                    editor.apply();
                 }
             }
 
@@ -679,6 +686,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            /*The background service looks for new data originated from a remote client.
+            The latest data from the server that we just downloaded is the reference of the background service
+             to determine if there is any "new" data */
+
             scheduleAlarm(liveTwin1,liveTwin2);
 
 
@@ -690,6 +701,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom twinSettings object
     private void processJsonSettings(JSONArray object) {
 
         try {
@@ -705,6 +717,7 @@ public class MainActivity extends AppCompatActivity {
                 preferences.add(new twinSettings(user,notificationchoice, autostopchoice, twin1name, twin2name));
             }
 
+            //look for the current user's unique id in the list of settings
             int f = preferences.size();
             for(int j=0; j<f; ++j) {
                 if(preferences.get(j).getUser().equals(uuid)) {
@@ -712,6 +725,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            //if you found your ID, read your preferences from file and set the correct variables accordingly
             if(myindex !=-1) {
 
                 twin1label.setText(preferences.get(myindex).getTwin1name());
@@ -732,6 +746,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //initialisations
+
         needsrefresh = true;
         shouldNotify = true;
         autostop = false;
@@ -748,8 +764,10 @@ public class MainActivity extends AppCompatActivity {
         preferences = new ArrayList<>();
         myindex = -1;
 
+        //this reads uuid from a file on internal storage or creates one if it doesn't exist (first install or re-install)
         uuid = Installation.id(this);
 
+        //main view
         setContentView(R.layout.activity_main);
 
         /* Drawer Menu Stuff */
@@ -834,7 +852,7 @@ public class MainActivity extends AppCompatActivity {
         txtCurrentDuration1 = (TextView)findViewById(R.id.current_duration_1);
         txtCurrentDuration2 = (TextView)findViewById(R.id.current_duration_2);
 
-        //Check for network and fetch data from API on creation of the page to fill the "last data" fields and vitamin buttons
+        //Check for network and fetch data from API on creation of the page to fill the "last data" fields, iron and vitamin buttons as well as check if any feedings could be ongoing and fecth settings values
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
@@ -1111,7 +1129,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         //vitamin Button 2  Click sends today's date to the server unless current day is already the latest data same as Vitamin button 1
-        //TODO factor code for buttons that only differ by twin number (function with integer as parameter and button array ?)
         vitaminBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1153,11 +1170,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Start Timer N1
+        //Start Timer N1 toggles start/pause status locally and on server
         strtBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(timer1 != null) {
+
+                    //pause
                     timer1.cancel();
                     timer1 = null;
 
@@ -1180,6 +1199,7 @@ public class MainActivity extends AppCompatActivity {
                     mNotificationManager.cancel(1);
                 }
                 else {
+                    //start
                     timer1 = new Timer();
 
                     long now = System.currentTimeMillis();
@@ -1229,11 +1249,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Start Timer N2
+        //Start Timer N2 toggles start/pause status locally and on server
         strtBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(timer2 != null) {
+
+                    //pause
                     timer2.cancel();
                     timer2 = null;
                     strtBttn2.setText(R.string.start);
@@ -1256,8 +1278,9 @@ public class MainActivity extends AppCompatActivity {
 
                 }
                 else {
-                    timer2 = new Timer();
 
+                    //start
+                    timer2 = new Timer();
 
                     long now = System.currentTimeMillis();
                     twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2);
@@ -1420,7 +1443,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Record data of timer N1
-        //TODO refctor this to change Stop into Record or save
         //If timer is running or data not empty (stopped by user), display a popup to confirm saving and send the data to the API in JSON through a POST request.
         stopBttn2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1529,6 +1551,9 @@ public class MainActivity extends AppCompatActivity {
         Log.i("bugrelou", needsrefresh.toString());
     }
 
+    /*this is called on killing the app.
+    Destroy all timers and live events to make sure we get a clean restart
+    with fresh data from the server on next onCreate */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -1537,20 +1562,13 @@ public class MainActivity extends AppCompatActivity {
         Log.i("bugrelou", "debut de ondestroy");
         Log.i("bugrelou", needsrefresh.toString());
 
+        //we don't want notifications when app is killed
         cancelAlarm();
 
         if(liveEvents!=null) {liveEvents.clear();}
 
         if(timer1!=null) {timer1.cancel();}
         if(timer2!=null) {timer2.cancel();}
-
-        //cleanup just like when app is dying because the back button behavior and the delete app from recent activity is different
-        final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        final SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean("ongoing1", false);
-        editor.putBoolean("ongoing2", false);
-        editor.apply();
-
     }
 
     //Handle drawer call from action bar

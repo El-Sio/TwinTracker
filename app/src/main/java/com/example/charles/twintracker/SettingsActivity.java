@@ -24,6 +24,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+
+//activity that display's current user settings and allow for settings modification and saving via the settings API;
 public class SettingsActivity extends AppCompatActivity {
 
     ProgressDialog loadingdialog;
@@ -161,6 +163,8 @@ public class SettingsActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
+
+        //when data is loaded, hide the progres popup.
         loadingdialog.dismiss();
     }
 
@@ -172,6 +176,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         if(networkInfo != null && networkInfo.isConnected()) {
 
+            //Display progress popup while data is being loaded
 
             loadingdialog = new ProgressDialog(this);
             loadingdialog.setTitle("Chargement");

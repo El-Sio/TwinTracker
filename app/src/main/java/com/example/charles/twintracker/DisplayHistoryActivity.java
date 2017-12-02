@@ -32,7 +32,6 @@ public class DisplayHistoryActivity extends AppCompatActivity {
     ProgressDialog loadingdialog;
 
     //Menu stuff : a single action menu in action bar to refresh the page
-    //TODO implement support of pull to refresh widget on the ListView
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -57,13 +56,19 @@ public class DisplayHistoryActivity extends AppCompatActivity {
         switch (item.getItemId())
         {
             case R.id.action_sync: {
+
+                //force refresh of the feeding data on press of the sync button
+
+                //empty dataset
                 feedings.clear();
 
+                //if network is available, get new data
                 ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
                 if(networkInfo != null && networkInfo.isConnected()) {
 
+                    //display loading popup whild data is being loaded to avoid user interaction
                     loadingdialog = new ProgressDialog(this);
                     loadingdialog.setTitle("Chargement");
                     loadingdialog.setMessage("Merci de patienter pendant le chargement des données...");
@@ -127,11 +132,13 @@ public class DisplayHistoryActivity extends AppCompatActivity {
 
         listview = (ListView)findViewById(R.id.listview);
 
+        //if network is available, get feeding data
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if(networkInfo != null && networkInfo.isConnected()) {
 
+            //disply a progress popup while data is being loaded
             loadingdialog = new ProgressDialog(this);
             loadingdialog.setTitle("Chargement");
             loadingdialog.setMessage("Merci de patienter pendant le chargement des données...");
@@ -188,6 +195,7 @@ public class DisplayHistoryActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+            //dismiss loading popup when data is parsed.
             loadingdialog.dismiss();
         }
 }

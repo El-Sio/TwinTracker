@@ -21,6 +21,10 @@ import java.util.ArrayList;
 
 /**
  * Created by clesoil on 26/11/2017.
+ *
+ * This service runs in the background of the app and looks for ongoing feedings on the "livefeed" API
+ * if a new ongoing data is detected, user is notified to check and follow ongoing feeding
+ *
  */
 
 public class twinTrackerService extends IntentService {
@@ -35,6 +39,7 @@ public class twinTrackerService extends IntentService {
     int myindex;
     String uuid;
 
+    //parses the JSON response from the HTTP Get to the API intoa structured livefeed
     private void processJsonLiveFeed(JSONArray object) {
 
         //notification items
@@ -188,6 +193,7 @@ public class twinTrackerService extends IntentService {
         }
     }
 
+    //we need to get the user's preferences through the settings API to know it the user want's to be notified
     private void processJsonSettings(JSONArray object) {
 
         try {
