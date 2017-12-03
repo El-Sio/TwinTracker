@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -74,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     liveFeed liveTwin1, liveTwin2;
     iron currentiron1,currentiron2;
     int ironindex1,ironindex2,liveTwin1index,liveTwin2index, myindex;
-    Boolean shouldNotify,autostop;
+    Boolean shouldNotify,autostop,unsaveddata1,unsaveddata2;
 
     //Time objects for tracking
     Timer timer1, timer2;
@@ -93,6 +94,12 @@ public class MainActivity extends AppCompatActivity {
     public static final String GET_LIVEFEED_DATA_URL = "http://japansio.info/api/livefeed.json";
     public static final String PUT_LIVEFEED_DATA_URL = "http://japansio.info/api/putlivefeed.php";
     public static final String GET_SETTINGS_URL = "http://japansio.info/api/settings.json";
+
+    //Auto Stop Limit (30 min)
+    public static  final long AUTO_STOP_DELAY = 30*60*1000;
+
+    //Auto Stop testing (30s)
+    //public static  final long AUTO_STOP_DELAY = 30*1000;
 
     //unique user ID for settings per client
     String uuid;
@@ -691,6 +698,69 @@ public class MainActivity extends AppCompatActivity {
              to determine if there is any "new" data */
 
             scheduleAlarm(liveTwin1,liveTwin2);
+
+
+            //after any refresh, check if a feeding has been ongoing for more than AUTOSTOP_DELAY (=30mins) and stop & record it if that's the case
+            if(autostop) {
+
+                if(timer1 != null && ((System.currentTimeMillis()-twinTimerTask1.getStartTime()) > AUTO_STOP_DELAY)) {
+
+                    Toast.makeText(getApplicationContext(),"Auto Stopping Twin 1", Toast.LENGTH_LONG).show();
+                    //pause
+                    timer1.cancel();
+                    timer1 = null;
+
+                    //cancel the ongoing feeding on the server by setting ongoing to false
+                    liveTwin1.setOngoing(false);
+                    liveEvents.get(liveTwin1index).setOngoing(false);
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if(networkInfo != null && networkInfo.isConnected()) {
+
+                        String json = new Gson().toJson(liveEvents);
+                        new UploadDataTask().execute(PUT_LIVEFEED_DATA_URL, json);
+                    }
+                    if(networkInfo == null || !networkInfo.isConnected()) {
+                        Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                    }
+
+                    strtBttn1.setText(R.string.start);
+                    mNotificationManager.cancel(1);
+                    unsaveddata1 = true;
+                    txtCurrentCount1.setTextColor(Color.RED);
+                    txtCurrentDuration1.setTextColor(Color.RED);
+                }
+                if(timer2 != null && ((System.currentTimeMillis()- twinTimerTask2.getStartTime()) > AUTO_STOP_DELAY)) {
+
+                    Toast.makeText(getApplicationContext(),"Auto Stopping Twin 2", Toast.LENGTH_LONG).show();
+                    //pause
+                    timer2.cancel();
+                    timer2 = null;
+
+                    //cancel the ongoing feeding on the server by setting ongoing to false
+                    liveTwin2.setOngoing(false);
+                    liveEvents.get(liveTwin2index).setOngoing(false);
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if(networkInfo != null && networkInfo.isConnected()) {
+
+                        String json = new Gson().toJson(liveEvents);
+                        new UploadDataTask().execute(PUT_LIVEFEED_DATA_URL, json);
+                    }
+                    if(networkInfo == null || !networkInfo.isConnected()) {
+                        Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
+                    }
+
+                    strtBttn2.setText(R.string.start);
+                    mNotificationManager.cancel(2);
+                    unsaveddata2 = true;
+                    txtCurrentCount2.setTextColor(Color.RED);
+                    txtCurrentDuration2.setTextColor(Color.RED);
+                }
+
+            }
 
 
         }
