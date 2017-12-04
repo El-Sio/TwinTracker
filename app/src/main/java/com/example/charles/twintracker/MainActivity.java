@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     //Main class of the app
 
     //standard UI items
-    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2;
+    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2,bathBttn1,bathBttn2;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2,twin1label, twin2label;
 
     ProgressDialog loadingdialog;
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<twinSettings> preferences;
     ArrayList<feeding> feedings;
     ArrayList<vitamin> vitamins;
+    ArrayList<bath> baths;
     ArrayList<iron> ironinputs;
     ArrayList<liveFeed> liveEvents;
     liveFeed liveTwin1, liveTwin2;
@@ -89,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String PUT_DATA_URL = "http://japansio.info/api/putdata.php";
     public static final String PUT_VITAMIN_DATA_URL = "http://japansio.info/api/putvitamindata.php";
     public static final String GET_VITAMIN_DATA_URL = "http://japansio.info/api/vitamin.json";
+    public static final String PUT_BATH_DATA_URL = "http://japansio.info/api/putbathdata.php";
+    public static final String GET_BATH_DATA_URL = "http://japansio.info/api/bath.json";
     public static final String PUT_IRON_DATA_URL = "http://japansio.info/api/putirondata.php";
     public static final String GET_IRON_DATA_URL = "http://japansio.info/api/iron.json";
     public static final String GET_LIVEFEED_DATA_URL = "http://japansio.info/api/livefeed.json";
@@ -180,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
             vitamins.clear();
             ironinputs.clear();
             liveEvents.clear();
+            baths.clear();
             ironindex1 = 0;
             ironindex2 = 0;
 
@@ -200,6 +204,14 @@ public class MainActivity extends AppCompatActivity {
                     processJsonvitamin(object);
                 }
             }).execute(GET_VITAMIN_DATA_URL);
+
+            //Get Bath Data
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonbath(object);
+                }
+            }).execute(GET_BATH_DATA_URL);
 
             //iron
             new DownloadWebpageTask(new AsyncResult() {
@@ -569,7 +581,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 if(vitamins.get(j).getName().equals("agathe")) {
                     jourvitamines1 = vitamins.get(j).getDay();
-                    a1 = " Vitamines : "+ jourvitamines1 + " ";
+                    a1 = " Vit. : "+ jourvitamines1 + " ";
 
                 }
             }
@@ -592,7 +604,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 if(vitamins.get(j).getName().equals("zoé")) {
                     jourvitamines2 = vitamins.get(j).getDay();
-                    z1 = " Vitamines : " + jourvitamines2+ " ";
+                    z1 = " Vit. : " + jourvitamines2+ " ";
                 }
             }
             vitaminBttn2.setText(z1);
@@ -602,6 +614,70 @@ public class MainActivity extends AppCompatActivity {
                 vitaminBttn2.setBackgroundResource(R.color.colorAccent);
             }
             else vitaminBttn2.setBackgroundResource(R.color.colorPrimary);
+
+
+
+        } catch (JSONException e) {
+            //In case parsing goes wrong
+            Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+    //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom bath object
+    private void processJsonbath(JSONArray object) {
+
+        try {
+
+            //read from the end of the dataset to display last entry first
+            for(int r=0; r< object.length(); ++r) {
+                JSONObject row = object.getJSONObject(r);
+                String name = row.getString("name");
+                String jour = row.getString("day");
+                baths.add(new bath(name,jour));
+            }
+
+            //Fetch latest vitamin data for Twin1 (agathe)
+            String a1 = "";
+            String jourbain1 = "";
+            int f = baths.size();
+            for(int j =0; j<f; j++)
+            {
+                if(baths.get(j).getName().equals("agathe")) {
+                    jourbain1 = baths.get(j).getDay();
+                    a1 = " Bain : "+ jourbain1 + " ";
+
+                }
+            }
+            bathBttn1.setText(a1);
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+            String aujourdhui = joursemaine.format(calendar.getTime());
+            //Compare the last entry day for vitamins with current day
+            if(!aujourdhui.equals(jourbain1)) {
+                //if they do not match, display the button in red (kids must have their vitamins daily)
+                bathBttn1.setBackgroundResource(R.color.colorAccent);
+            }
+            //fine if it's today
+            else bathBttn1.setBackgroundResource(R.color.colorPrimary);
+
+            //Fetch latest vitamin data for Twin2 (Zoé)
+            String z1 = "";
+            String jourbain2 = "";
+            for(int j =0; j<f; j++)
+            {
+                if(baths.get(j).getName().equals("zoé")) {
+                    jourbain2 = baths.get(j).getDay();
+                    z1 = " Bain : " + jourbain2+ " ";
+                }
+            }
+            bathBttn2.setText(z1);
+            //Compare the last entry day for vitamins with current day
+            if(!aujourdhui.equals(jourbain2)) {
+                //if they do not match, display the button in red (kids must have their vitamins daily)
+                bathBttn2.setBackgroundResource(R.color.colorAccent);
+            }
+            else bathBttn2.setBackgroundResource(R.color.colorPrimary);
 
 
 
@@ -833,6 +909,7 @@ public class MainActivity extends AppCompatActivity {
         liveTwin1index = liveTwin2index =0;
         preferences = new ArrayList<>();
         myindex = -1;
+        baths = new ArrayList<>();
 
         //this reads uuid from a file on internal storage or creates one if it doesn't exist (first install or re-install)
         uuid = Installation.id(this);
@@ -908,6 +985,8 @@ public class MainActivity extends AppCompatActivity {
         vitaminBttn2 = (Button)findViewById(R.id.vitamin_button_2);
         ironBttn1 = (Button)findViewById(R.id.iron_button_1);
         ironBttn2 = (Button)findViewById(R.id.iron_button_2);
+        bathBttn1 = (Button)findViewById(R.id.bathbutton1);
+        bathBttn2 = (Button)findViewById(R.id.bathbutton2);
 
         twin1label = (TextView)findViewById(R.id.twin1);
         twin2label = (TextView)findViewById(R.id.twin2);
@@ -961,6 +1040,14 @@ public class MainActivity extends AppCompatActivity {
                     processJsonvitamin(object);
                 }
             }).execute(GET_VITAMIN_DATA_URL);
+
+            //Get Bath Data
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonbath(object);
+                }
+            }).execute(GET_BATH_DATA_URL);
 
             //get Iron data
             new DownloadWebpageTask(new AsyncResult() {
@@ -1148,7 +1235,106 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //vitamin Button 1 Click sends today's date to the server unless current day is already the latest data
+        //Bath Button 1 Click sends today's date to the server unless current day is already the latest data
+        bathBttn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //get latest data entry for twin 1
+                String jourbain1 = "";
+                int f = baths.size();
+                for(int j =0; j<f; j++)
+                {
+                    if(baths.get(j).getName().equals("agathe")) {
+                        jourbain1 = baths.get(j).getDay();
+                    }
+                }
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                String jourbain = joursemaine.format(calendar.getTime());
+
+                //compare with current date
+                if(!jourbain.equals(jourbain1)) {
+
+                    //update text if new date
+                    String bainbttn1 = "  Bain : " + jourbain + "  ";
+                    bathBttn1.setText(bainbttn1);
+                    bathBttn1.setBackgroundResource(R.color.colorPrimary);
+                    bath bath1 = new bath("agathe", jourbain);
+                    baths.add(bath1);
+                    String json = new Gson().toJson(baths);
+
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        //send new day to server if network is available
+                        new UploadDataTask().execute(PUT_BATH_DATA_URL, json);
+                        Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
+                    }
+                    if (networkInfo == null || !networkInfo.isConnected()) {
+                        //inform user if network is not available
+                        Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                    }
+                }
+                else {
+                    //nothing to do but inform the user if vitamins were already given today
+                    Toast.makeText(getApplicationContext(), "Bain déjà donné aujourd'hui", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        //Bath Button 1 Click sends today's date to the server unless current day is already the latest data
+        bathBttn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //get latest data entry for twin 2
+                String jourbain2 = "";
+                int f = baths.size();
+                for(int j =0; j<f; j++)
+                {
+                    if(baths.get(j).getName().equals("zoé")) {
+                        jourbain2 = baths.get(j).getDay();
+                    }
+                }
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                String jourbain = joursemaine.format(calendar.getTime());
+
+                //compare with current date
+                if(!jourbain.equals(jourbain2)) {
+
+                    //update text if new date
+                    String bainbttn2 = "  Bain : " + jourbain + "  ";
+                    bathBttn2.setText(bainbttn2);
+                    bathBttn2.setBackgroundResource(R.color.colorPrimary);
+                    bath bath2 = new bath("zoé", jourbain);
+                    baths.add(bath2);
+                    String json = new Gson().toJson(baths);
+
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        //send new day to server if network is available
+                        new UploadDataTask().execute(PUT_BATH_DATA_URL, json);
+                        Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
+                    }
+                    if (networkInfo == null || !networkInfo.isConnected()) {
+                        //inform user if network is not available
+                        Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                    }
+                }
+                else {
+                    //nothing to do but inform the user if vitamins were already given today
+                    Toast.makeText(getApplicationContext(), "Bain déjà donné aujourd'hui", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+
+        //Vitamin Button 1 Click sends today's date to the server unless current day is already the latest data
         vitaminBttn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1170,7 +1356,7 @@ public class MainActivity extends AppCompatActivity {
                 if(!jourvitamines.equals(jourvitamines1)) {
 
                     //update text if new date
-                    String vitaminbttn1 = "  Vitamines : " + jourvitamines + "  ";
+                    String vitaminbttn1 = "  Vit. : " + jourvitamines + "  ";
                     vitaminBttn1.setText(vitaminbttn1);
                     vitaminBttn1.setBackgroundResource(R.color.colorPrimary);
                     vitamin vitamin1 = new vitamin("agathe", jourvitamines);
@@ -1216,7 +1402,7 @@ public class MainActivity extends AppCompatActivity {
                 String jourvitamines = joursemaine.format(calendar.getTime());
                 if (!jourvitamines.equals(jourvitamines2)) {
 
-                    String vitaminbttn2 = "  Vitamines : " + jourvitamines + "  ";
+                    String vitaminbttn2 = "  Vit. : " + jourvitamines + "  ";
                     vitaminBttn2.setText(vitaminbttn2);
                     vitaminBttn2.setBackgroundResource(R.color.colorPrimary);
                     vitamin vitamin2 = new vitamin("zoé", jourvitamines);
@@ -1239,6 +1425,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+
 
         //Start Timer N1 toggles start/pause status locally and on server
         strtBttn1.setOnClickListener(new View.OnClickListener() {

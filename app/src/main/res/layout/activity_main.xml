@@ -137,6 +137,17 @@
             app:layout_constraintTop_toTopOf="@id/vitamin_button_1"
             />
 
+        <Button
+            android:id="@+id/bathbutton1"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/bath"
+            android:layout_marginLeft="20dp"
+            android:background="?android:attr/colorButtonNormal"
+            app:layout_constraintLeft_toRightOf="@id/iron_button_1"
+            app:layout_constraintTop_toTopOf="@id/iron_button_1"
+            />
+
         <TextView
             android:id="@+id/twin2"
             android:layout_width="wrap_content"
@@ -251,6 +262,17 @@
             android:background="?android:attr/colorButtonNormal"
             app:layout_constraintLeft_toRightOf="@id/vitamin_button_2"
             app:layout_constraintTop_toTopOf="@id/vitamin_button_2"
+            />
+
+        <Button
+            android:id="@+id/bathbutton2"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/bath"
+            android:layout_marginLeft="20dp"
+            android:background="?android:attr/colorButtonNormal"
+            app:layout_constraintLeft_toRightOf="@id/iron_button_2"
+            app:layout_constraintTop_toTopOf="@id/iron_button_2"
             />
 
     </android.support.constraint.ConstraintLayout>

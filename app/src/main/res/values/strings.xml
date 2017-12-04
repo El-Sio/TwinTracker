@@ -29,4 +29,5 @@
     <string name="twin1inputlabel">Nom du jumeau 1 :</string>
     <string name="twin2inputlabel">Nom du jumeau 2 :</string>
     <string name="autostop">Arrêt Automatique :</string>
+    <string name="bath">Bain</string>
 </resources>
