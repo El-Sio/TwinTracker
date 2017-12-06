@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     //standard UI items
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2,bathBttn1,bathBttn2;
-    TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtPreLast1,txtPreLast2,txtCurrentDuration1,txtCurrentDuration2,twin1label, twin2label;
+    TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtCurrentDuration1,txtCurrentDuration2,twin1label, twin2label;
 
     ProgressDialog loadingdialog;
 
@@ -447,7 +447,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             txtLastDate1.setText(a1);
-            txtPreLast1.setText(a2);
 
             //Fetch latest data for Twin2 (Zoé) and the one before that
             String z1 = "";
@@ -462,7 +461,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             txtLastDate2.setText(z1);
-            txtPreLast2.setText(z2);
 
         } catch (JSONException e) {
             //In case parsing goes wrong
@@ -995,8 +993,6 @@ public class MainActivity extends AppCompatActivity {
         txtCurrentCount2 = (TextView)findViewById(R.id.current_timer_2);
         txtLastDate1 = (TextView)findViewById(R.id.last1_time);
         txtLastDate2 = (TextView)findViewById(R.id.last2_time);
-        txtPreLast1 = (TextView)findViewById(R.id.prelast1_time);
-        txtPreLast2 = (TextView)findViewById(R.id.prelast2_time);
 
         txtCurrentDuration1 = (TextView)findViewById(R.id.current_duration_1);
         txtCurrentDuration2 = (TextView)findViewById(R.id.current_duration_2);
@@ -1608,7 +1604,6 @@ public class MainActivity extends AppCompatActivity {
                                     if(networkInfo != null && networkInfo.isConnected()) {
                                         timer1.cancel();
                                         timer1 = null;
-                                        txtPreLast1.setText(txtLastDate1.getText());
                                         String lastdate1 = txtCurrentCount1.getText().toString() + "  " + txtCurrentDuration1.getText().toString();
                                         txtLastDate1.setText(lastdate1);
 
@@ -1660,7 +1655,6 @@ public class MainActivity extends AppCompatActivity {
 
                                     if(networkInfo != null && networkInfo.isConnected()) {
 
-                                        txtPreLast1.setText(txtLastDate1.getText());
                                         String lastdate1 = txtCurrentCount1.getText().toString() + "  " + txtCurrentDuration1.getText().toString();
                                         txtLastDate1.setText(lastdate1);
 
@@ -1721,7 +1715,6 @@ public class MainActivity extends AppCompatActivity {
                                     timer2.cancel();
                                     timer2 = null;
 
-                                    txtPreLast2.setText(txtLastDate2.getText());
                                     String lastdate2 = txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString();
                                     txtLastDate2.setText(lastdate2);
 
@@ -1768,7 +1761,6 @@ public class MainActivity extends AppCompatActivity {
                                     NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
                                     if(networkInfo != null && networkInfo.isConnected()) {
-                                    txtPreLast2.setText(txtLastDate2.getText());
                                     String lastdate2 = txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString();
                                     txtLastDate2.setText(lastdate2);
 

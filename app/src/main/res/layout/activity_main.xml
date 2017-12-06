@@ -28,7 +28,7 @@
             android:layout_marginTop="10dp"
             android:text="@string/twin1_name"
             android:textColor="?attr/actionMenuTextColor"
-            android:textSize="15pt"
+            android:textSize="10pt"
             android:textStyle="bold"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -54,26 +54,6 @@
             app:layout_constraintLeft_toRightOf="@id/last1"
             app:layout_constraintTop_toTopOf="@id/last1" />
 
-        <TextView
-            android:id="@+id/prelast1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/prelast"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/last1" />
-
-        <TextView
-            android:id="@+id/prelast1_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="@id/prelast1"
-            app:layout_constraintTop_toTopOf="@id/prelast1" />
-
         <Button
             android:id="@+id/start_button_1"
             android:layout_width="100dp"
@@ -83,7 +63,7 @@
             android:background="?android:attr/colorButtonNormal"
             android:text="@string/start"
             app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/prelast1" />
+            app:layout_constraintTop_toBottomOf="@id/last1" />
 
         <Button
             android:id="@+id/stop_button_1"
@@ -143,9 +123,10 @@
             android:layout_height="40dp"
             android:text="@string/bath"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
             android:background="?android:attr/colorButtonNormal"
-            app:layout_constraintLeft_toRightOf="@id/iron_button_1"
-            app:layout_constraintTop_toTopOf="@id/iron_button_1"
+            app:layout_constraintLeft_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iron_button_1"
             />
 
         <TextView
@@ -155,11 +136,11 @@
             android:layout_marginTop="15dp"
             android:text="@string/twin2_name"
             android:textColor="?attr/actionMenuTextColor"
-            android:textSize="15pt"
+            android:textSize="10pt"
             android:textStyle="bold"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/vitamin_button_1" />
+            app:layout_constraintTop_toBottomOf="@id/bathbutton1" />
 
         <TextView
             android:id="@+id/last2"
@@ -181,26 +162,6 @@
             app:layout_constraintLeft_toRightOf="@id/last2"
             app:layout_constraintTop_toTopOf="@id/last2" />
 
-        <TextView
-            android:id="@+id/prelast2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/prelast"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/last2" />
-
-        <TextView
-            android:id="@+id/prelast2_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="@id/prelast2"
-            app:layout_constraintTop_toTopOf="@id/prelast2" />
-
         <Button
             android:id="@+id/start_button_2"
             android:layout_width="100dp"
@@ -210,7 +171,7 @@
             android:background="?attr/colorButtonNormal"
             android:text="@string/start"
             app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/prelast2" />
+            app:layout_constraintTop_toBottomOf="@id/last2" />
 
         <Button
             android:id="@+id/stop_button_2"
@@ -270,9 +231,10 @@
             android:layout_height="40dp"
             android:text="@string/bath"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
             android:background="?android:attr/colorButtonNormal"
-            app:layout_constraintLeft_toRightOf="@id/iron_button_2"
-            app:layout_constraintTop_toTopOf="@id/iron_button_2"
+            app:layout_constraintLeft_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iron_button_2"
             />
 
     </android.support.constraint.ConstraintLayout>
