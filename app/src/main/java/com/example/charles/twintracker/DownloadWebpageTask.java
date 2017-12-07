@@ -2,6 +2,8 @@ package com.example.charles.twintracker;
 
 import android.os.AsyncTask;
 
+import com.google.gson.Gson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,11 +47,17 @@ import java.net.URL;
 
             System.out.println(result);
 
+            JSONArray array = new JSONArray();
+            JSONObject json = new JSONObject();
+
             try {
+                json.put("error", result);
+                array.put(json);
                 JSONArray table = new JSONArray(result);
                 callback.onResult(table);
             } catch (JSONException e) {
                 e.printStackTrace();
+                callback.onResult(array);
             }
         }
 

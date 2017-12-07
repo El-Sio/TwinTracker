@@ -57,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtCurrentDuration1,txtCurrentDuration2,twin1label, twin2label;
 
     ProgressDialog loadingdialog;
+    int progress;
+    Boolean datacomplete;
 
     //Popup Items
     String selected_name;
@@ -160,6 +162,32 @@ public class MainActivity extends AppCompatActivity {
         alarm.cancel(pIntent);
     }
 
+    public void enableUI() {
+        strtBttn1.setEnabled(true);
+        strtBttn2.setEnabled(true);
+        stopBttn1.setEnabled(true);
+        stopBttn2.setEnabled(true);
+        vitaminBttn1.setEnabled(true);
+        vitaminBttn2.setEnabled(true);
+        ironBttn1.setEnabled(true);
+        ironBttn2.setEnabled(true);
+        bathBttn1.setEnabled(true);
+        bathBttn2.setEnabled(true);
+    }
+
+    public void disaleUI() {
+        strtBttn1.setEnabled(false);
+        strtBttn2.setEnabled(false);
+        stopBttn1.setEnabled(false);
+        stopBttn2.setEnabled(false);
+        vitaminBttn1.setEnabled(false);
+        vitaminBttn2.setEnabled(false);
+        ironBttn1.setEnabled(false);
+        ironBttn2.setEnabled(false);
+        bathBttn1.setEnabled(false);
+        bathBttn2.setEnabled(false);
+    }
+
     //Method to fetch all data from the API.
     public void refreshdata() {
 
@@ -172,9 +200,14 @@ public class MainActivity extends AppCompatActivity {
 
             //if connected start by showing a loading dialog to avoid user interaction during loading (can take a few seconds on slow networks)
 
+            progress = 0;
+            datacomplete = true;
             loadingdialog = new ProgressDialog(this);
             loadingdialog.setTitle("Chargement");
             loadingdialog.setMessage("Merci de patienter pendant le chargement des données...");
+            loadingdialog.setMax(100);
+            loadingdialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            loadingdialog.setProgressNumberFormat(null);
             loadingdialog.setCancelable(false); // disable dismiss by tapping outside of the dialog
             loadingdialog.show();
 
@@ -188,6 +221,14 @@ public class MainActivity extends AppCompatActivity {
             ironindex2 = 0;
 
             //asynchronously calls the API
+
+            //get settings
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsonSettings(object);
+                }
+            }).execute(GET_SETTINGS_URL);
 
             //feedings
             new DownloadWebpageTask(new AsyncResult() {
@@ -228,6 +269,8 @@ public class MainActivity extends AppCompatActivity {
                     processJsonLiveFeed(object);
                 }
             }).execute(GET_LIVEFEED_DATA_URL);
+
+
 
             //data is now up-to-date
             needsrefresh = false;
@@ -462,14 +505,28 @@ public class MainActivity extends AppCompatActivity {
 
             txtLastDate2.setText(z1);
 
+            progress +=30;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "feedings done : "+ progresstext);
+
         } catch (JSONException e) {
             //In case parsing goes wrong
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
+            progress +=30;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "feedings failed : "+ progresstext);
+            datacomplete = false;
         }
 
-        //feedings is the largest dataset so we can assume all data is complete when parsing of feeding is complete, so Hide the progress popup.
-        loadingdialog.dismiss();
+        if(progress == 100) {
+            loadingdialog.dismiss();
+            if(!datacomplete) {
+                disaleUI();
+            } else enableUI();
+        }
     }
 
     //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom iron object
@@ -550,12 +607,34 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+
+            progress +=20;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "iron done : "+ progresstext);
+
+
         }
         catch (JSONException e) {
             //In case parsing goes wrong
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
+
+            progress +=20;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "feedings error : "+ progresstext);
+            datacomplete = false;
+
         }
+
+        if(progress == 100) {
+            loadingdialog.dismiss();
+            if(!datacomplete) {
+                disaleUI();
+            } else enableUI();
+        }
+
     }
 
     //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom vitamin object
@@ -614,11 +693,28 @@ public class MainActivity extends AppCompatActivity {
             else vitaminBttn2.setBackgroundResource(R.color.colorPrimary);
 
 
+            progress +=20;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "vitamin done : "+ progresstext);
+
 
         } catch (JSONException e) {
             //In case parsing goes wrong
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
+            progress +=20;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "vitamin failed : "+ progresstext);
+            datacomplete = false;
+        }
+
+        if(progress == 100) {
+            loadingdialog.dismiss();
+            if(!datacomplete) {
+                disaleUI();
+            } else enableUI();
         }
     }
 
@@ -677,12 +773,28 @@ public class MainActivity extends AppCompatActivity {
             }
             else bathBttn2.setBackgroundResource(R.color.colorPrimary);
 
+            progress +=10;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "bath done : "+ progresstext);
 
 
         } catch (JSONException e) {
             //In case parsing goes wrong
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
+            progress +=10;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "bath failed : "+ progresstext);
+            datacomplete = false;
+        }
+
+        if(progress == 100) {
+            loadingdialog.dismiss();
+            if(!datacomplete) {
+                disaleUI();
+            } else enableUI();
         }
     }
 
@@ -836,12 +948,29 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
+            progress +=10;
+            loadingdialog.setProgress(progress);
+            String progresstext = progress+"%";
+            Log.i("progress", "livefeed done : "+ progresstext);
 
         }
         catch (JSONException e) {
             //In case parsing goes wrong
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
+
+            progress +=10;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "livefeed done : "+ progresstext);
+            datacomplete = false;
+        }
+
+        if(progress == 100) {
+            loadingdialog.dismiss();
+            if(!datacomplete) {
+                disaleUI();
+            } else enableUI();
         }
     }
 
@@ -878,10 +1007,28 @@ public class MainActivity extends AppCompatActivity {
                 autostop = preferences.get(myindex).getAutoStop();
             }
 
+            progress +=10;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "settings done : "+ progresstext);
+
         } catch (JSONException e) {
             //In case parsing goes wrong
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
+
+            progress +=10;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "settings failed : "+ progresstext);
+            datacomplete = false;
+        }
+
+        if(progress == 100) {
+            loadingdialog.dismiss();
+            if(!datacomplete) {
+                disaleUI();
+            } else enableUI();
         }
     }
 
@@ -892,7 +1039,9 @@ public class MainActivity extends AppCompatActivity {
 
         //initialisations
 
+        progress = 0;
         needsrefresh = true;
+        datacomplete = true;
         shouldNotify = true;
         autostop = false;
 
@@ -1010,6 +1159,9 @@ public class MainActivity extends AppCompatActivity {
             loadingdialog = new ProgressDialog(this);
             loadingdialog.setTitle("Chargement");
             loadingdialog.setMessage("Merci de patienter pendant le chargement des données...");
+            loadingdialog.setMax(100);
+            loadingdialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            loadingdialog.setProgressNumberFormat(null);
             loadingdialog.setCancelable(false); // disable dismiss by tapping outside of the dialog
             loadingdialog.show();
 
