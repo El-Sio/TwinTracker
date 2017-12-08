@@ -30,4 +30,5 @@
     <string name="twin2inputlabel">Nom du jumeau 2 :</string>
     <string name="autostop">Arrêt Automatique :</string>
     <string name="bath">Bain</string>
+    <string name="changephoto">Modifier la photo</string>
 </resources>

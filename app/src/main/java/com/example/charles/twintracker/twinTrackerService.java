@@ -206,7 +206,9 @@ public class twinTrackerService extends IntentService {
                 String twin2name = row.getString("twin2name");
                 Boolean notificationchoice = row.getBoolean("shouldnotify");
                 Boolean autostopchoice = row.getBoolean("autoStop");
-                preferences.add(new twinSettings(user,notificationchoice, autostopchoice, twin1name, twin2name));
+                String photo1path = row.getString("photopath1");
+                String photo2path = row.getString("photopath2");
+                preferences.add(new twinSettings(user,notificationchoice, autostopchoice, twin1name, twin2name, photo1path, photo2path));
             }
 
             int f = preferences.size();

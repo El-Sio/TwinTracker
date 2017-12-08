@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -30,6 +32,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     //standard UI items
     Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2,bathBttn1,bathBttn2;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtCurrentDuration1,txtCurrentDuration2,twin1label, twin2label;
+    String photopath1,photopath2;
+    ImageView photo1,photo2;
 
     ProgressDialog loadingdialog;
     int progress;
@@ -974,6 +979,57 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    private void setPic1() {
+        // Get the dimensions of the View
+        int targetW = photo1.getWidth();
+        int targetH = photo1.getHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(photopath1, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(photopath1, bmOptions);
+        photo1.setImageBitmap(bitmap);
+    }
+
+
+    private void setPic2() {
+        // Get the dimensions of the View
+        int targetW = photo2.getWidth();
+        int targetH = photo2.getHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(photopath2, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(photopath2, bmOptions);
+        photo2.setImageBitmap(bitmap);
+    }
+
+
     //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom twinSettings object
     private void processJsonSettings(JSONArray object) {
 
@@ -987,7 +1043,9 @@ public class MainActivity extends AppCompatActivity {
                 String twin2name = row.getString("twin2name");
                 Boolean notificationchoice = row.getBoolean("shouldnotify");
                 Boolean autostopchoice = row.getBoolean("autoStop");
-                preferences.add(new twinSettings(user,notificationchoice, autostopchoice, twin1name, twin2name));
+                String photo1path = row.getString("photopath1");
+                String photo2path = row.getString("photopath2");
+                preferences.add(new twinSettings(user,notificationchoice, autostopchoice, twin1name, twin2name, photo1path, photo2path));
             }
 
             //look for the current user's unique id in the list of settings
@@ -1005,6 +1063,16 @@ public class MainActivity extends AppCompatActivity {
                 twin2label.setText(preferences.get(myindex).getTwin2name());
                 shouldNotify = preferences.get(myindex).getShouldnotify();
                 autostop = preferences.get(myindex).getAutoStop();
+                photopath1 = preferences.get(myindex).getPhotopath1();
+                photopath2 = preferences.get(myindex).getPhotopath2();
+
+                if(photopath1 != "") {
+                    setPic1();
+                }
+                if(photopath2 != "") {
+                    setPic2();
+                }
+
             }
 
             progress +=10;
@@ -1044,6 +1112,8 @@ public class MainActivity extends AppCompatActivity {
         datacomplete = true;
         shouldNotify = true;
         autostop = false;
+        photopath1 = "";
+        photopath2 = "";
 
         Log.i("bugrelou","début de on create");
         Log.i("bugrelou", needsrefresh.toString());
@@ -1145,6 +1215,9 @@ public class MainActivity extends AppCompatActivity {
 
         txtCurrentDuration1 = (TextView)findViewById(R.id.current_duration_1);
         txtCurrentDuration2 = (TextView)findViewById(R.id.current_duration_2);
+
+        photo1 = (ImageView)findViewById(R.id.twin1photo);
+        photo2 = (ImageView)findViewById(R.id.twin2photo);
 
         //Check for network and fetch data from API on creation of the page to fill the "last data" fields, iron and vitamin buttons as well as check if any feedings could be ongoing and fecth settings values
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

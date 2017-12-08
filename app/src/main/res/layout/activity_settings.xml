@@ -81,6 +81,27 @@
         android:layout_marginTop="15dp"
         />
 
+    <ImageView
+        android:id="@+id/twin1photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintTop_toTopOf="@id/twin1inputtext"
+        app:layout_constraintRight_toLeftOf="parent"
+        android:layout_marginRight="20dp"/>
+
+    <Button
+        android:id="@+id/changephoto1"
+        android:layout_width="150dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/twin1photo"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="20dp"
+        android:text="@string/changephoto"
+        android:background="@color/colorNormal"
+        />
+
     <TextView
         android:id="@+id/twin2inputlabel"
         android:layout_width="wrap_content"
@@ -90,7 +111,7 @@
         android:text="@string/twin2inputlabel"
         android:layout_marginTop="25dp"
         android:layout_marginLeft="20dp"
-        app:layout_constraintTop_toBottomOf="@id/twin1inputlabel"
+        app:layout_constraintTop_toBottomOf="@id/changephoto1"
         app:layout_constraintLeft_toRightOf="parent"/>
 
     <EditText
@@ -101,8 +122,29 @@
         android:layout_marginLeft="20dp"
         android:textSize="10pt"
         android:hint="@string/twin2_name"
-        app:layout_constraintTop_toBottomOf="@id/twin1inputlabel"
+        app:layout_constraintTop_toBottomOf="@id/changephoto1"
         android:layout_marginTop="15dp"
+        />
+
+    <ImageView
+        android:id="@+id/twin2photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintTop_toTopOf="@id/twin2inputtext"
+        app:layout_constraintRight_toLeftOf="parent"
+        android:layout_marginRight="20dp"/>
+
+    <Button
+        android:id="@+id/changephoto2"
+        android:layout_width="150dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/twin2photo"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="20dp"
+        android:text="@string/changephoto"
+        android:background="@color/colorNormal"
         />
 
     <Button
@@ -110,8 +152,8 @@
         android:layout_width="100dp"
         android:layout_height="40dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/twin2inputlabel"
+        android:layout_marginBottom="100dp"
+        app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintLeft_toRightOf="parent"
         android:text="@string/stop"
         android:background="?attr/colorAccent"
