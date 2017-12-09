@@ -44,8 +44,8 @@
 
         <ImageView
             android:id="@+id/twin1photo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:src="@mipmap/ic_launcher"
             app:layout_constraintTop_toTopOf="@id/twin1"
             app:layout_constraintRight_toLeftOf="parent"
@@ -55,7 +55,7 @@
             android:id="@+id/last1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="5dp"
             android:layout_marginTop="10dp"
             android:text="@string/last"
             android:textSize="10pt"
@@ -66,7 +66,7 @@
             android:id="@+id/last1_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="10dp"
             android:textSize="10pt"
             app:layout_constraintLeft_toRightOf="@id/last1"
             app:layout_constraintTop_toTopOf="@id/last1" />
@@ -161,8 +161,8 @@
 
         <ImageView
             android:id="@+id/twin2photo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:src="@mipmap/ic_launcher"
             app:layout_constraintTop_toTopOf="@id/twin2"
             app:layout_constraintRight_toLeftOf="parent"
@@ -172,7 +172,7 @@
             android:id="@+id/last2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="5dp"
             android:layout_marginTop="10dp"
             android:text="@string/last"
             android:textSize="10pt"
@@ -183,7 +183,7 @@
             android:id="@+id/last2_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="10dp"
             android:textSize="10pt"
             app:layout_constraintLeft_toRightOf="@id/last2"
             app:layout_constraintTop_toTopOf="@id/last2" />
@@ -214,7 +214,7 @@
             android:id="@+id/current_timer_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="5dp"
             android:layout_marginTop="5dp"
             android:textSize="10pt"
             app:layout_constraintLeft_toRightOf="@id/stop_button_2"
@@ -224,7 +224,7 @@
             android:id="@+id/current_duration_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="5dp"
             android:textSize="10pt"
             app:layout_constraintLeft_toRightOf="@id/current_timer_2"
             app:layout_constraintTop_toTopOf="@id/current_timer_2" />

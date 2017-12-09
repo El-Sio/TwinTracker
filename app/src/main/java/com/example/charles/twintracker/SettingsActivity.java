@@ -3,6 +3,7 @@ package com.example.charles.twintracker;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -32,9 +33,11 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.os.Environment.getExternalStoragePublicDirectory;
@@ -61,8 +64,8 @@ public class SettingsActivity extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE_1 = 1;
     static final int REQUEST_IMAGE_CAPTURE_2 = 2;
 
-    private void dispatchTakePictureIntent1() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+  /*  private void dispatchTakePictureIntent1() {
+        Intent takePictureIntent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
@@ -82,7 +85,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void dispatchTakePictureIntent2() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent takePictureIntent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
         Log.i("photo", "intent créé");
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             Log.i("photo", "autorisation OK");
@@ -106,6 +109,20 @@ public class SettingsActivity extends AppCompatActivity {
                 Log.i("photo", "lancement de l'activite");
             }
         }
+    } */
+
+  private void dispatchTakePictureIntent1() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_IMAGE_CAPTURE_1);
+    }
+
+    private void dispatchTakePictureIntent2() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_IMAGE_CAPTURE_2);
     }
 
     @Override
@@ -226,7 +243,6 @@ public class SettingsActivity extends AppCompatActivity {
         photo1.setImageBitmap(bitmap);
     }
 
-
     private void setPic2() {
         // Get the dimensions of the View
         int targetW = photo2.getWidth();
@@ -235,7 +251,7 @@ public class SettingsActivity extends AppCompatActivity {
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(photopath2, bmOptions);
+        BitmapFactory.decodeFile(photopath1, bmOptions);
         int photoW = bmOptions.outWidth;
         int photoH = bmOptions.outHeight;
 
@@ -251,9 +267,25 @@ public class SettingsActivity extends AppCompatActivity {
         photo2.setImageBitmap(bitmap);
     }
 
+    private Bitmap resizePic1(Bitmap bitmap) {
+        // Get the dimensions of the View
+        int targetW = photo2.getWidth();
+        int targetH = photo2.getHeight();
+        Bitmap result = Bitmap.createScaledBitmap(bitmap,targetW, targetH,true);
+        return result;
+    }
+
+    private Bitmap resizePic2(Bitmap bitmap) {
+        // Get the dimensions of the View
+        int targetW = photo2.getWidth();
+        int targetH = photo2.getHeight();
+        Bitmap result = Bitmap.createScaledBitmap(bitmap,targetW, targetH,true);
+        return result;
+    }
+
     private File createImageFile1() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(DIRECTORY_PICTURES);
         File image = File.createTempFile(
@@ -269,7 +301,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private File createImageFile2() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(DIRECTORY_PICTURES);
         File image = File.createTempFile(
@@ -296,12 +328,46 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE_1 && resultCode == RESULT_OK) {
-            galleryAddPic(photopath1);
-            setPic1();
+            Uri uri = data.getData();
+            Bitmap bitmap = null;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(bitmap !=null) {
+                try {
+                    // Log.d(TAG, String.valueOf(bitmap));
+                    photopath1 = PathUtil.getPath(this.getApplicationContext(), uri);
+                    photo1.setImageBitmap(resizePic1(bitmap));
+                    Log.i("photo", photopath2);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         if (requestCode == REQUEST_IMAGE_CAPTURE_2 && resultCode == RESULT_OK) {
-            galleryAddPic(photopath2);
-            setPic2();
+
+            Uri uri = data.getData();
+            Bitmap bitmap;
+            bitmap = null;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(bitmap !=null) {
+                try {
+                    // Log.d(TAG, String.valueOf(bitmap));
+                    photopath2 = PathUtil.getPath(this.getApplicationContext(), uri);
+                    Log.i("photo", photopath2);
+                    photo2.setImageBitmap(resizePic1(bitmap));
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
