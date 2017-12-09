@@ -3,14 +3,12 @@ package com.example.charles.twintracker;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
@@ -21,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -40,7 +39,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import static android.os.Environment.DIRECTORY_PICTURES;
-import static android.os.Environment.getExternalStoragePublicDirectory;
 
 
 //activity that display's current user settings and allow for settings modification and saving via the settings API;
@@ -49,6 +47,7 @@ public class SettingsActivity extends AppCompatActivity {
     ProgressDialog loadingdialog;
     Button savesettingsBttn,changePhoto1,changePhoto2;
     ImageView photo1,photo2;
+    ImageButton takephoto1, takephoto2;
     EditText twin1input,twin2input;
     Boolean shouldNotify, autostop;
     String photopath1,photopath2;
@@ -61,11 +60,13 @@ public class SettingsActivity extends AppCompatActivity {
 
 
     //photo handling
-    static final int REQUEST_IMAGE_CAPTURE_1 = 1;
-    static final int REQUEST_IMAGE_CAPTURE_2 = 2;
+    static final int REQUEST_IMAGE_MODIFY = 1;
+    static final int REQUEST_IMAGE_MODIFY_2 = 2;
+    static final int REQUEST_IMAGE_CAPTURE_1 = 3;
+    static final int REQUEST_IMAGE_CAPTURE_2 = 4;
 
-  /*  private void dispatchTakePictureIntent1() {
-        Intent takePictureIntent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+  private void dispatchTakePictureIntent1() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
@@ -85,7 +86,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void dispatchTakePictureIntent2() {
-        Intent takePictureIntent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         Log.i("photo", "intent créé");
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             Log.i("photo", "autorisation OK");
@@ -109,20 +110,20 @@ public class SettingsActivity extends AppCompatActivity {
                 Log.i("photo", "lancement de l'activite");
             }
         }
-    } */
-
-  private void dispatchTakePictureIntent1() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_IMAGE_CAPTURE_1);
     }
 
-    private void dispatchTakePictureIntent2() {
+  private void dispatchModifyPictureIntent1() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_IMAGE_CAPTURE_2);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_IMAGE_MODIFY);
+    }
+
+    private void dispatchModifyPictureIntent2() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_IMAGE_MODIFY_2);
     }
 
     @Override
@@ -159,6 +160,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         changePhoto1 = (Button)findViewById(R.id.changephoto1);
         changePhoto2 = (Button)findViewById(R.id.changephoto2);
+
+        takephoto1 = (ImageButton)findViewById(R.id.takephoto1);
+        takephoto2 = (ImageButton)findViewById(R.id.takephoto2);
 
         //API ressources
         preferences = new ArrayList<>();
@@ -202,7 +206,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                dispatchTakePictureIntent1();
+                dispatchModifyPictureIntent1();
 
             }
         });
@@ -212,8 +216,22 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 Log.i("photo", "clicked");
-                dispatchTakePictureIntent2();
+                dispatchModifyPictureIntent2();
 
+            }
+        });
+
+        takephoto1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dispatchTakePictureIntent1();
+            }
+        });
+
+        takephoto2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dispatchTakePictureIntent2();
             }
         });
 
@@ -327,7 +345,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE_1 && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_IMAGE_MODIFY && resultCode == RESULT_OK) {
             Uri uri = data.getData();
             Bitmap bitmap = null;
             try {
@@ -347,7 +365,7 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
         }
-        if (requestCode == REQUEST_IMAGE_CAPTURE_2 && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_IMAGE_MODIFY_2 && resultCode == RESULT_OK) {
 
             Uri uri = data.getData();
             Bitmap bitmap;
@@ -363,12 +381,20 @@ public class SettingsActivity extends AppCompatActivity {
                     // Log.d(TAG, String.valueOf(bitmap));
                     photopath2 = PathUtil.getPath(this.getApplicationContext(), uri);
                     Log.i("photo", photopath2);
-                    photo2.setImageBitmap(resizePic1(bitmap));
+                    photo2.setImageBitmap(resizePic2(bitmap));
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }
             }
         }
+        if(requestCode == REQUEST_IMAGE_CAPTURE_1 && resultCode == RESULT_OK) {
+            setPic1();
+        }
+
+        if(requestCode == REQUEST_IMAGE_CAPTURE_2 && resultCode == RESULT_OK) {
+            setPic2();
+        }
+
     }
 
     private void processJson(JSONArray object) {

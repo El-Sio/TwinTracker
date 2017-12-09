@@ -102,6 +102,16 @@
         android:background="@color/colorNormal"
         />
 
+    <ImageButton
+        android:id="@+id/takephoto1"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/ic_cam"
+        app:layout_constraintTop_toTopOf="@+id/changephoto1"
+        app:layout_constraintLeft_toRightOf="@+id/changephoto1"
+        android:background="@color/colorNormal"/>
+
     <TextView
         android:id="@+id/twin2inputlabel"
         android:layout_width="wrap_content"
@@ -147,6 +157,16 @@
         android:text="@string/changephoto"
         android:background="@color/colorNormal"
         />
+
+    <ImageButton
+        android:id="@+id/takephoto2"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/ic_cam"
+        app:layout_constraintTop_toTopOf="@+id/changephoto2"
+        app:layout_constraintLeft_toRightOf="@+id/changephoto2"
+        android:background="@color/colorNormal"/>
 
     <Button
         android:id="@+id/savesettingsbttn"
