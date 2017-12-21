@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //the popup itself
                 feeding_input = new AlertDialog.Builder(this);
-                feeding_input.setIcon(R.mipmap.ic_edit).setTitle("Enregistrer une têtée").setView(feeding_input_form).setPositiveButton("Enregistrer",
+                feeding_input.setIcon(R.drawable.ic_edit_white).setTitle("Enregistrer une têtée").setView(feeding_input_form).setPositiveButton("Enregistrer",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
@@ -1302,7 +1302,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
 
-        mmenutTitles = new String[]{"Accueil", "Historique","Réglages"};
+        mmenutTitles = new String[]{"Twin Tracker", "Historique","Réglages"};
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
