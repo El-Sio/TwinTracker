@@ -17,6 +17,14 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>>
 
+    <string name="history_shortcut_short_label">Historique</string>
+    <string name="history_shortcut_long_label">Historique des têtées</string>
+    <string name="history_disabled_message">Historique indisponible</string>
+
+    <string name="settings_shortcut_short_label">Réglages</string>
+    <string name="settings_shortcut_long_label">Modifier les réglages</string>
+    <string name="settings_disabled_message">Réglages indisponibles</string>
+
     <string name="action_sync">Synchroniser</string>
     <string name="action_edit">Ajouter</string>
     <string name="datehint">00:00:00</string>

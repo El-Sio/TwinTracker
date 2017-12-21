@@ -1,0 +1,46 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="settings_shortcut"
+        android:enabled="true"
+        android:icon="@drawable/ic_settings"
+        android:shortcutShortLabel="@string/settings_shortcut_short_label"
+        android:shortcutLongLabel="@string/settings_shortcut_long_label"
+        android:shortcutDisabledMessage="@string/settings_disabled_message">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.charles.twintracker"
+            android:targetClass="com.example.charles.twintracker.MainActivity" />
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.charles.twintracker"
+            android:targetClass="com.example.charles.twintracker.SettingsActivity" />
+        <!-- If your shortcut is associated with multiple intents, include them
+             here. The last intent in the list determines what the user sees when
+             they launch this shortcut. -->
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+
+    <shortcut
+        android:shortcutId="history_shortcut"
+        android:enabled="true"
+        android:icon="@mipmap/ic_history"
+        android:shortcutShortLabel="@string/history_shortcut_short_label"
+        android:shortcutLongLabel="@string/history_shortcut_long_label"
+        android:shortcutDisabledMessage="@string/history_disabled_message">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.charles.twintracker"
+            android:targetClass="com.example.charles.twintracker.MainActivity" />
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.charles.twintracker"
+            android:targetClass="com.example.charles.twintracker.DisplayHistoryActivity" />
+        <!-- If your shortcut is associated with multiple intents, include them
+             here. The last intent in the list determines what the user sees when
+             they launch this shortcut. -->
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    <!-- Specify more shortcuts here. -->
+</shortcuts>

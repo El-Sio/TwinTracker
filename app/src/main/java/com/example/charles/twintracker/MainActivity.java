@@ -7,13 +7,16 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -46,6 +49,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Timer;
@@ -64,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     ProgressDialog loadingdialog;
     int progress;
     Boolean datacomplete;
+    Boolean startTwin1Intent,startTwin2Intent,stopTwin1Intent,stopTwin2Intent;
 
     //Popup Items
     String selected_name;
@@ -114,21 +119,15 @@ public class MainActivity extends AppCompatActivity {
     //unique user ID for settings per client
     String uuid;
 
-    //Using preferences to save data locally, unused for npw
-    public static final String PREFS_NAME = "lastdata";
-
     //is the data displayed up-to-date ?
     public static Boolean needsrefresh;
 
     // Drawer menu items
 
-    private Toolbar toolbar;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private android.support.v4.app.ActionBarDrawerToggle mDrawerToggle;
 
-    private CharSequence mDrawerTitle;
-    private CharSequence mTitle;
     private String[] mmenutTitles;
 
     //triggers updates in background on a regular basis
@@ -150,12 +149,12 @@ public class MainActivity extends AppCompatActivity {
         // Create a PendingIntent to be triggered when the alarm goes off
         final PendingIntent pIntent = PendingIntent.getBroadcast(this, twinTrackerAlarmReceiver.REQUEST_CODE,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        // Setup periodic alarm every every half hour from this point onwards
+        // Setup periodic alarm every every minute from this point onwards
         long firstMillis = System.currentTimeMillis(); // alarm is set right away
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        // First parameter is the type: ELAPSED_REALTIME, ELAPSED_REALTIME_WAKEUP, RTC_WAKEUP
-        // Interval can be INTERVAL_FIFTEEN_MINUTES, INTERVAL_HALF_HOUR, INTERVAL_HOUR, INTERVAL_DAY
-        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, 10000, pIntent);
+        if(alarm !=null) {
+            alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis, 10000, pIntent);
+        }
     }
 
     //Cancels background cheks if app is killed (only called @ OnDestroy)
@@ -164,7 +163,9 @@ public class MainActivity extends AppCompatActivity {
         final PendingIntent pIntent = PendingIntent.getBroadcast(this, twinTrackerAlarmReceiver.REQUEST_CODE,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarm.cancel(pIntent);
+        if(alarm !=null) {
+            alarm.cancel(pIntent);
+        }
     }
 
     public void enableUI() {
@@ -178,6 +179,25 @@ public class MainActivity extends AppCompatActivity {
         ironBttn2.setEnabled(true);
         bathBttn1.setEnabled(true);
         bathBttn2.setEnabled(true);
+
+        if(startTwin1Intent) {
+
+            strtBttn1.callOnClick();
+        }
+
+        if (startTwin2Intent) {
+
+            strtBttn2.callOnClick();
+        }
+
+        if(stopTwin1Intent) {
+            stopBttn1.callOnClick();
+        }
+
+        if(stopTwin2Intent) {
+            stopBttn2.callOnClick();
+        }
+
     }
 
     public void disaleUI() {
@@ -415,19 +435,13 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 
-    @Override
-    public void setTitle(CharSequence title) {
-        mTitle = title;
-    }
-
-
     //Calls History page by creating an instance of the DisplayHistoryActivity class
     public void displayHistory(View view) {
         Intent intent = new Intent(this, DisplayHistoryActivity.class);
         startActivity(intent);
     }
 
-    //Calles Settings Page by creating an instance of the SettingsActivity class
+    //Calls Settings Page by creating an instance of the SettingsActivity class
     public void displaySettings(View view) {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
@@ -456,13 +470,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-
         Log.i("bugrelou","début de on resume");
         Log.i("bugrelou", needsrefresh.toString());
 
         //only refresh in onResume when it's called before onCreate, otherwise data gets duplicated
         if(needsrefresh) {
             refreshdata();
+            startTwin2Intent = false;
+            startTwin1Intent = false;
+            stopTwin1Intent = false;
+            stopTwin2Intent = false;
         }
 
         }
@@ -847,6 +864,27 @@ public class MainActivity extends AppCompatActivity {
                     twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1, liveTwin1.getStartTime() ,liveTwin1.getStartDate());
                     timer1.schedule(twinTimerTask1, 1000, 1000);
                     strtBttn1.setText(R.string.pause);
+
+                    //change shortcut labels
+
+                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+                    Intent twin1Intent = new Intent();
+                    twin1Intent.putExtra("stopTwin1", true);
+                    twin1Intent.putExtra("stopTwin2", false);
+                    twin1Intent.setClass(getApplicationContext(), MainActivity.class);
+                    twin1Intent.setAction(Intent.ACTION_VIEW);
+                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin1")
+                            .setShortLabel(twin1label.getText())
+                            .setLongLabel("Stopper "+twin1label.getText())
+                            .setIntent(twin1Intent)
+                            .build();
+
+                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
+
                 }
             }
 
@@ -859,6 +897,26 @@ public class MainActivity extends AppCompatActivity {
                     txtCurrentCount1.setText("");
                     txtCurrentDuration1.setText("");
                     strtBttn1.setText(R.string.start);
+
+                    //change shortcut labels
+
+                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+                    Intent twin1Intent = new Intent();
+                    twin1Intent.putExtra("startTwin1", true);
+                    twin1Intent.putExtra("startTwin2", false);
+                    twin1Intent.setClass(getApplicationContext(), MainActivity.class);
+                    twin1Intent.setAction(Intent.ACTION_VIEW);
+                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin1")
+                            .setShortLabel(twin1label.getText())
+                            .setLongLabel("Nourrir "+twin1label.getText())
+                            .setIntent(twin1Intent)
+                            .build();
+
+                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
                 }
             }
 
@@ -869,6 +927,26 @@ public class MainActivity extends AppCompatActivity {
                     txtCurrentCount2.setText("");
                     txtCurrentDuration2.setText("");
                     strtBttn2.setText(R.string.start);
+
+                    //change shortcut labels
+
+                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+                    Intent twin2Intent = new Intent();
+                    twin2Intent.putExtra("startTwin1", false);
+                    twin2Intent.putExtra("startTwin2", true);
+                    twin2Intent.setClass(getApplicationContext(), MainActivity.class);
+                    twin2Intent.setAction(Intent.ACTION_VIEW);
+                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin2")
+                            .setShortLabel(twin2label.getText())
+                            .setLongLabel("Nourrir "+twin2label.getText())
+                            .setIntent(twin2Intent)
+                            .build();
+
+                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
                 }
             }
 
@@ -881,6 +959,26 @@ public class MainActivity extends AppCompatActivity {
                     twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2, liveTwin2.getStartTime() ,liveTwin2.getStartDate());
                     timer2.schedule(twinTimerTask2, 1000, 1000);
                     strtBttn2.setText(R.string.pause);
+
+                    //change shortcut labels
+
+                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+                    Intent twin2Intent = new Intent();
+                    twin2Intent.putExtra("stopTwin1", false);
+                    twin2Intent.putExtra("stopTwin2", true);
+                    twin2Intent.setClass(getApplicationContext(), MainActivity.class);
+                    twin2Intent.setAction(Intent.ACTION_VIEW);
+                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin2")
+                            .setShortLabel(twin2label.getText())
+                            .setLongLabel("Stopper "+twin2label.getText())
+                            .setIntent(twin2Intent)
+                            .build();
+
+                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
                 }
             }
 
@@ -1002,6 +1100,26 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = BitmapFactory.decodeFile(photopath1, bmOptions);
         photo1.setImageBitmap(bitmap);
+        ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+        Intent twin1Intent = new Intent();
+        twin1Intent.putExtra("startTwin1", true);
+        twin1Intent.putExtra("startTwin2", false);
+        twin1Intent.setClass(this, MainActivity.class);
+        twin1Intent.setAction(Intent.ACTION_VIEW);
+        twin1Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        twin1Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        ShortcutInfo shortcut = new ShortcutInfo.Builder(this, "twin1")
+                .setShortLabel(twin1label.getText())
+                .setLongLabel("Nourrir "+twin1label.getText())
+                .setIcon(Icon.createWithBitmap(bitmap))
+                .setIntent(twin1Intent)
+                .build();
+
+        shortcutManager.addDynamicShortcuts(Arrays.asList(shortcut));
+
+
     }
 
 
@@ -1027,6 +1145,26 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = BitmapFactory.decodeFile(photopath2, bmOptions);
         photo2.setImageBitmap(bitmap);
+
+        ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+        Intent twin2Intent = new Intent();
+        twin2Intent.putExtra("startTwin2", true);
+        twin2Intent.putExtra("startTwin1", false);
+        twin2Intent.setClass(this, MainActivity.class);
+        twin2Intent.setAction(Intent.ACTION_VIEW);
+        twin2Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        twin2Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        ShortcutInfo shortcut = new ShortcutInfo.Builder(this, "twin2")
+                .setShortLabel(twin2label.getText())
+                .setLongLabel("Nourrir "+twin2label.getText())
+                .setIcon(Icon.createWithBitmap(bitmap))
+                .setIntent(twin2Intent)
+                .build();
+
+        shortcutManager.addDynamicShortcuts(Arrays.asList(shortcut));
+
     }
 
 
@@ -1107,6 +1245,28 @@ public class MainActivity extends AppCompatActivity {
 
         //initialisations
 
+        startTwin1Intent = false;
+        startTwin2Intent = false;
+        stopTwin2Intent = false;
+        stopTwin1Intent = false;
+
+        //is there any data in the intent ?
+        Intent called = this.getIntent();
+        if(called.getExtras() !=null) {
+            try {
+                startTwin1Intent = called.getExtras().getBoolean("startTwin1");
+                startTwin2Intent = called.getExtras().getBoolean("startTwin2");
+                stopTwin1Intent = called.getExtras().getBoolean("stopTwin1");
+                stopTwin2Intent = called.getExtras().getBoolean("stopTwin2");
+                Log.i("shortcuts", called.getExtras().get("startTwin1").toString());
+                Log.i("shortcuts", called.getExtras().get("startTwin2").toString());
+            }
+            catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+
+
         progress = 0;
         needsrefresh = true;
         datacomplete = true;
@@ -1142,7 +1302,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
 
-        mTitle = mDrawerTitle = "Twin Tracker";
         mmenutTitles = new String[]{"Accueil", "Historique","Réglages"};
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -1219,6 +1378,8 @@ public class MainActivity extends AppCompatActivity {
         photo1 = (ImageView)findViewById(R.id.twin1photo);
         photo2 = (ImageView)findViewById(R.id.twin2photo);
 
+        disaleUI();
+
         //Check for network and fetch data from API on creation of the page to fill the "last data" fields, iron and vitamin buttons as well as check if any feedings could be ongoing and fecth settings values
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -1293,6 +1454,7 @@ public class MainActivity extends AppCompatActivity {
             //inform the user if no network is connected
             Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
         }
+
 
         // Click handler for the Iron Input button for twin 1 Adds 1 count to the current day to reach a maximum of 2. Sends the data to the API
         ironBttn1.setOnClickListener(new View.OnClickListener() {
@@ -1681,6 +1843,27 @@ public class MainActivity extends AppCompatActivity {
                     //start
                     timer1 = new Timer();
 
+                    //change shortcut labels
+
+                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+                    Intent twin1Intent = new Intent();
+                    twin1Intent.putExtra("stopTwin1", true);
+                    twin1Intent.putExtra("stopTwin2", false);
+                    twin1Intent.setClass(getApplicationContext(), MainActivity.class);
+                    twin1Intent.setAction(Intent.ACTION_VIEW);
+                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin1")
+                            .setShortLabel(twin1label.getText())
+                            .setLongLabel("Stopper "+twin1label.getText())
+                            .setIntent(twin1Intent)
+                            .build();
+
+                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
+
+
                     long now = System.currentTimeMillis();
                     twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1);
                     timer1.schedule(twinTimerTask1, 1000, 1000);
@@ -1760,6 +1943,28 @@ public class MainActivity extends AppCompatActivity {
 
                     //start
                     timer2 = new Timer();
+
+
+                    //change shortcut labels
+
+                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+                    Intent twin2Intent = new Intent();
+                    twin2Intent.putExtra("stopTwin1", false);
+                    twin2Intent.putExtra("stopTwin1", true);
+                    twin2Intent.setClass(getApplicationContext(), MainActivity.class);
+                    twin2Intent.setAction(Intent.ACTION_VIEW);
+                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin2")
+                            .setShortLabel(twin2label.getText())
+                            .setLongLabel("Stopper "+twin2label.getText())
+                            .setIntent(twin2Intent)
+                            .build();
+
+                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
+
 
                     long now = System.currentTimeMillis();
                     twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2);

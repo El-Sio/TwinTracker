@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -18,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by clesoil on 26/11/2017.
@@ -34,7 +37,7 @@ public class twinTrackerService extends IntentService {
     liveFeed livetwin1,livetwin2;
     ArrayList<liveFeed> liveEvents;
     ArrayList<twinSettings> preferences;
-    String lastdata1, lastdata2;
+    String lastdata1, lastdata2, twin1name, twin2name;
     Boolean shouldNotify;
     int myindex;
     String uuid;
@@ -95,6 +98,28 @@ public class twinTrackerService extends IntentService {
             if(livetwin1!=null && livetwin1.getOngoing()) {
 
                 Log.i("Debug", "il y a une têtée en cours");
+
+                //change shortcut labels if the name was received
+
+                ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+                Intent twin1Intent = new Intent();
+                twin1Intent.putExtra("stopTwin1", true);
+                twin1Intent.putExtra("stopTwin2", false);
+                twin1Intent.setClass(getApplicationContext(), MainActivity.class);
+                twin1Intent.setAction(Intent.ACTION_VIEW);
+                twin1Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                twin1Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin1")
+                        .setShortLabel(twin1name)
+                        .setLongLabel("Stopper "+twin1name)
+                        .setIntent(twin1Intent)
+                        .build();
+
+                shortcutManager.updateShortcuts(Arrays.asList(shortcut));
+
+
                 if(!livetwin1.getStartDate().equals(lastdata1)) {
 
                     Log.i("Debug", "mais c'est une nouvelle donnée");
@@ -130,6 +155,27 @@ public class twinTrackerService extends IntentService {
             if(livetwin2!=null && livetwin2.getOngoing()) {
 
                 Log.i("Debug", "il y a une têtée en cours");
+
+                //change shortcut labels
+
+                ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+                Intent twin2Intent = new Intent();
+                twin2Intent.putExtra("stopTwin1", false);
+                twin2Intent.putExtra("stopTwin2", true);
+                twin2Intent.setClass(getApplicationContext(), MainActivity.class);
+                twin2Intent.setAction(Intent.ACTION_VIEW);
+                twin2Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                twin2Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin2")
+                        .setShortLabel(twin2name)
+                        .setLongLabel("Stopper "+twin2name)
+                        .setIntent(twin2Intent)
+                        .build();
+
+                shortcutManager.updateShortcuts(Arrays.asList(shortcut));
+
                 if(!livetwin2.getStartDate().equals(lastdata2)) {
 
                     Log.i("Debug", "mais c'est une nouvelle donnée");
@@ -221,6 +267,8 @@ public class twinTrackerService extends IntentService {
             if(myindex !=-1) {
 
                 shouldNotify = preferences.get(myindex).getShouldnotify();
+                twin1name = preferences.get(myindex).getTwin1name();
+                twin2name = preferences.get(myindex).getTwin2name();
 
             }
 
@@ -247,6 +295,8 @@ public class twinTrackerService extends IntentService {
             lastdata2 = intent.getExtras().getString("lastdata2");
         }
 
+        twin2name = "";
+        twin1name = "";
         liveEvents = new ArrayList<>();
         liveEvents.clear();
         preferences = new ArrayList<>();
