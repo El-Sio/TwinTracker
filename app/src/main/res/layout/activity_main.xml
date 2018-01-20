@@ -146,6 +146,17 @@
             app:layout_constraintTop_toBottomOf="@id/iron_button_1"
             />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:id="@+id/inexiumbutton1"
+            android:text="@string/inexium"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:background="?android:attr/colorButtonNormal"
+            app:layout_constraintLeft_toRightOf="@id/bathbutton1"
+            app:layout_constraintTop_toBottomOf="@id/iron_button_1"/>
+
         <TextView
             android:id="@+id/twin2"
             android:layout_width="wrap_content"
@@ -262,6 +273,18 @@
             app:layout_constraintLeft_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iron_button_2"
             />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:id="@+id/inexiumbutton2"
+            android:text="@string/inexium"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:background="?android:attr/colorButtonNormal"
+            app:layout_constraintLeft_toRightOf="@id/bathbutton2"
+            app:layout_constraintTop_toBottomOf="@id/iron_button_2"/>
+
 
 
     </android.support.constraint.ConstraintLayout>

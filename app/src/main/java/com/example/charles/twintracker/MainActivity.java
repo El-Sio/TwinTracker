@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     //Main class of the app
 
     //standard UI items
-    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2,bathBttn1,bathBttn2;
+    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2,bathBttn1,bathBttn2,inexiumBttn1,inexiumBttn2;
     TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtCurrentDuration1,txtCurrentDuration2,twin1label, twin2label;
     String photopath1,photopath2;
     ImageView photo1,photo2;
@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<bath> baths;
     ArrayList<iron> ironinputs;
     ArrayList<liveFeed> liveEvents;
+    ArrayList<inexium> inexiums;
     liveFeed liveTwin1, liveTwin2;
     iron currentiron1,currentiron2;
     int ironindex1,ironindex2,liveTwin1index,liveTwin2index, myindex;
@@ -102,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String PUT_DATA_URL = "http://japansio.info/api/putdata.php";
     public static final String PUT_VITAMIN_DATA_URL = "http://japansio.info/api/putvitamindata.php";
     public static final String GET_VITAMIN_DATA_URL = "http://japansio.info/api/vitamin.json";
+    public static final String PUT_INEXIUM_DATA_URL = "http://japansio.info/api/putinexiumdata.php";
+    public static final String GET_INEXIUM_DATA_URL = "http://japansio.info/api/inexium.json";
     public static final String PUT_BATH_DATA_URL = "http://japansio.info/api/putbathdata.php";
     public static final String GET_BATH_DATA_URL = "http://japansio.info/api/bath.json";
     public static final String PUT_IRON_DATA_URL = "http://japansio.info/api/putirondata.php";
@@ -179,6 +182,8 @@ public class MainActivity extends AppCompatActivity {
         ironBttn2.setEnabled(true);
         bathBttn1.setEnabled(true);
         bathBttn2.setEnabled(true);
+        inexiumBttn1.setEnabled(true);
+        inexiumBttn2.setEnabled(true);
 
         if(startTwin1Intent) {
 
@@ -211,6 +216,8 @@ public class MainActivity extends AppCompatActivity {
         ironBttn2.setEnabled(false);
         bathBttn1.setEnabled(false);
         bathBttn2.setEnabled(false);
+        inexiumBttn2.setEnabled(false);
+        inexiumBttn1.setEnabled(false);
     }
 
     //Method to fetch all data from the API.
@@ -242,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
             ironinputs.clear();
             liveEvents.clear();
             baths.clear();
+            inexiums.clear();
             ironindex1 = 0;
             ironindex2 = 0;
 
@@ -270,6 +278,14 @@ public class MainActivity extends AppCompatActivity {
                     processJsonvitamin(object);
                 }
             }).execute(GET_VITAMIN_DATA_URL);
+
+            //get inexium
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsoninexium(object);
+                }
+            }).execute(GET_INEXIUM_DATA_URL);
 
             //Get Bath Data
             new DownloadWebpageTask(new AsyncResult() {
@@ -715,7 +731,7 @@ public class MainActivity extends AppCompatActivity {
             else vitaminBttn2.setBackgroundResource(R.color.colorPrimary);
 
 
-            progress +=20;
+            progress +=10;
             String progresstext = progress+"%";
             loadingdialog.setProgress(progress);
             Log.i("progress", "vitamin done : "+ progresstext);
@@ -725,10 +741,91 @@ public class MainActivity extends AppCompatActivity {
             //In case parsing goes wrong
             Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-            progress +=20;
+            progress +=10;
             String progresstext = progress+"%";
             loadingdialog.setProgress(progress);
             Log.i("progress", "vitamin failed : "+ progresstext);
+            datacomplete = false;
+        }
+
+        if(progress == 100) {
+            loadingdialog.dismiss();
+            if(!datacomplete) {
+                disaleUI();
+            } else enableUI();
+        }
+    }
+
+    //Callback on success of the HTTP GET request of the API and parses the JSON into an array of custom vitamin object
+    private void processJsoninexium(JSONArray object) {
+
+        try {
+
+            //read from the end of the dataset to display last entry first
+            for(int r=0; r< object.length(); ++r) {
+                JSONObject row = object.getJSONObject(r);
+                String name = row.getString("name");
+                String jour = row.getString("day");
+                inexiums.add(new inexium(name,jour));
+            }
+
+            //Fetch latest inexium data for Twin1 (agathe)
+            String a1 = "";
+            String jourinexium1 = "";
+            int f = inexiums.size();
+            for(int j =0; j<f; j++)
+            {
+                if(inexiums.get(j).getName().equals("agathe")) {
+                    jourinexium1 = inexiums.get(j).getDay();
+                    a1 = " Inex. : "+ jourinexium1 + " ";
+
+                }
+            }
+            inexiumBttn1.setText(a1);
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+            String aujourdhui = joursemaine.format(calendar.getTime());
+            //Compare the last entry day for vitamins with current day
+            if(!aujourdhui.equals(jourinexium1)) {
+                //if they do not match, display the button in red (kids must have their vitamins daily)
+                inexiumBttn1.setBackgroundResource(R.color.colorAccent);
+            }
+            //fine if it's today
+            else inexiumBttn1.setBackgroundResource(R.color.colorPrimary);
+
+            //Fetch latest vitamin data for Twin2 (Zoé)
+            String z1 = "";
+            String jourinexium2 = "";
+            for(int j =0; j<f; j++)
+            {
+                if(inexiums.get(j).getName().equals("zoé")) {
+                    jourinexium2 = inexiums.get(j).getDay();
+                    z1 = " Inex. : " + jourinexium2+ " ";
+                }
+            }
+            inexiumBttn2.setText(z1);
+            //Compare the last entry day for vitamins with current day
+            if(!aujourdhui.equals(jourinexium2)) {
+                //if they do not match, display the button in red (kids must have their vitamins daily)
+                inexiumBttn2.setBackgroundResource(R.color.colorAccent);
+            }
+            else inexiumBttn2.setBackgroundResource(R.color.colorPrimary);
+
+
+            progress +=10;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "inexium done : "+ progresstext);
+
+
+        } catch (JSONException e) {
+            //In case parsing goes wrong
+            Toast.makeText(getApplicationContext(),"Erreur de traitement des données", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            progress +=10;
+            String progresstext = progress+"%";
+            loadingdialog.setProgress(progress);
+            Log.i("progress", "inexium failed : "+ progresstext);
             datacomplete = false;
         }
 
@@ -1280,6 +1377,7 @@ public class MainActivity extends AppCompatActivity {
 
         feedings = new ArrayList<>();
         vitamins = new ArrayList<>();
+        inexiums = new ArrayList<>();
         ironinputs = new ArrayList<>();
         ironindex1 = ironindex2 = 0;
         liveEvents = new ArrayList<>();
@@ -1363,6 +1461,8 @@ public class MainActivity extends AppCompatActivity {
         ironBttn2 = (Button)findViewById(R.id.iron_button_2);
         bathBttn1 = (Button)findViewById(R.id.bathbutton1);
         bathBttn2 = (Button)findViewById(R.id.bathbutton2);
+        inexiumBttn1 = (Button)findViewById(R.id.inexiumbutton1);
+        inexiumBttn2 = (Button)findViewById(R.id.inexiumbutton2);
 
         twin1label = (TextView)findViewById(R.id.twin1);
         twin2label = (TextView)findViewById(R.id.twin2);
@@ -1422,6 +1522,14 @@ public class MainActivity extends AppCompatActivity {
                     processJsonvitamin(object);
                 }
             }).execute(GET_VITAMIN_DATA_URL);
+
+            //get Inexium data
+            new DownloadWebpageTask(new AsyncResult() {
+                @Override
+                public void onResult(JSONArray object) {
+                    processJsoninexium(object);
+                }
+            }).execute(GET_INEXIUM_DATA_URL);
 
             //Get Bath Data
             new DownloadWebpageTask(new AsyncResult() {
@@ -1808,6 +1916,101 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+
+        //Inexium Button 1 Click sends today's date to the server unless current day is already the latest data
+        inexiumBttn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //get latest data entry for twin 1
+                String jourinexium1 = "";
+                int f = inexiums.size();
+                for(int j =0; j<f; j++)
+                {
+                    if(inexiums.get(j).getName().equals("agathe")) {
+                        jourinexium1 = inexiums.get(j).getDay();
+                    }
+                }
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                String jourinexium = joursemaine.format(calendar.getTime());
+
+                //compare with current date
+                if(!jourinexium.equals(jourinexium1)) {
+
+                    //update text if new date
+                    String inexiumbttn1 = "  Inex. : " + jourinexium + "  ";
+                    inexiumBttn1.setText(inexiumbttn1);
+                    inexiumBttn1.setBackgroundResource(R.color.colorPrimary);
+                    inexium inexium1 = new inexium("agathe", jourinexium);
+                    inexiums.add(inexium1);
+                    String json = new Gson().toJson(inexiums);
+
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        //send new day to server if network is available
+                        new UploadDataTask().execute(PUT_INEXIUM_DATA_URL, json);
+                        Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
+                    }
+                    if (networkInfo == null || !networkInfo.isConnected()) {
+                        //inform user if network is not available
+                        Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                    }
+                }
+                else {
+                    //nothing to do but inform the user if inexium were already given today
+                    Toast.makeText(getApplicationContext(), "Inexium déjà donné aujourd'hui", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+
+        //Inexium Button 2  Click sends today's date to the server unless current day is already the latest data same as Vitamin button 1
+        inexiumBttn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                int f = inexiums.size();
+                String jourinexium2 = "";
+                for (int j = 0; j < f; j++) {
+                    if (inexiums.get(j).getName().equals("zoé")) {
+                        jourinexium2 = inexiums.get(j).getDay();
+                    }
+                }
+
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
+                String jourinexium = joursemaine.format(calendar.getTime());
+                if (!jourinexium.equals(jourinexium2)) {
+
+                    String inexiumbttn2 = "  Inex. : " + jourinexium + "  ";
+                    inexiumBttn2.setText(inexiumbttn2);
+                    inexiumBttn2.setBackgroundResource(R.color.colorPrimary);
+                    inexium inexium2 = new inexium("zoé", jourinexium);
+                    inexiums.add(inexium2);
+                    String json = new Gson().toJson(inexiums);
+
+                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        new UploadDataTask().execute(PUT_INEXIUM_DATA_URL, json);
+                        Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
+                    }
+                    if (networkInfo == null || !networkInfo.isConnected()) {
+                        Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
+                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Inexium déjà donné aujourd'hui", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+
 
 
 
