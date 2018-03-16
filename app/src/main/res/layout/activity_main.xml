@@ -13,281 +13,297 @@
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true" >
+        android:fillViewport="true">
 
-    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="com.example.charles.twintracker.MainActivity">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_height="wrap_content"
+        <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
-            android:minHeight="?attr/actionBarSize"
-            android:background="?attr/colorPrimary" />
+            android:layout_height="match_parent"
+            tools:context="com.example.charles.twintracker.MainActivity">
 
-        <TextView
-            android:id="@+id/twin1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/twin1_name"
-            android:textColor="?attr/actionMenuTextColor"
-            android:textSize="12pt"
-            android:textStyle="bold"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar" />
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
+                android:minHeight="?attr/actionBarSize" />
 
-        <ImageView
-            android:id="@+id/twin1photo"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@mipmap/ic_launcher"
-            app:layout_constraintTop_toTopOf="@id/twin1"
-            app:layout_constraintRight_toLeftOf="parent"
-            android:layout_marginRight="20dp"/>
+            <TextView
+                android:id="@+id/twin1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/twin1_name"
+                android:textColor="?attr/actionMenuTextColor"
+                android:textSize="12pt"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-        <TextView
-            android:id="@+id/last1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/last"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/twin1" />
+            <ImageView
+                android:id="@+id/twin1photo"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginRight="20dp"
+                android:src="@mipmap/ic_launcher"
+                app:layout_constraintRight_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="@id/twin1" />
 
-        <TextView
-            android:id="@+id/last1_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="@id/last1"
-            app:layout_constraintTop_toTopOf="@id/last1" />
+            <TextView
+                android:id="@+id/last1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/last"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/twin1" />
 
-        <Button
-            android:id="@+id/start_button_1"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:background="?android:attr/colorButtonNormal"
-            android:text="@string/start"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/last1" />
+            <TextView
+                android:id="@+id/last1_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="@id/last1"
+                app:layout_constraintTop_toTopOf="@id/last1" />
 
-        <Button
-            android:id="@+id/stop_button_1"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="10dp"
-            android:background="?attr/colorAccent"
-            android:text="@string/stop"
-            app:layout_constraintLeft_toRightOf="@id/start_button_1"
-            app:layout_constraintTop_toTopOf="@+id/start_button_1" />
+            <TextView
+                android:id="@+id/prelast1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/prelast"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/last1" />
 
+            <TextView
+                android:id="@+id/prelast1_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="@id/prelast1"
+                app:layout_constraintTop_toTopOf="@id/prelast1" />
 
-        <TextView
-            android:id="@+id/current_timer_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="@id/stop_button_1"
-            app:layout_constraintTop_toTopOf="@id/stop_button_1" />
+            <Button
+                android:id="@+id/start_button_1"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:background="?android:attr/colorButtonNormal"
+                android:text="@string/start"
+                app:layout_constraintLeft_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/prelast1" />
 
-        <TextView
-            android:id="@+id/current_duration_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="@id/current_timer_1"
-            app:layout_constraintTop_toTopOf="@id/current_timer_1" />
-
-        <Button
-            android:id="@+id/vitamin_button_1"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="@string/vitamin"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:background="?android:attr/colorButtonNormal"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/stop_button_1"/>
-
-        <Button
-            android:id="@+id/iron_button_1"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="@string/iron"
-            android:layout_marginLeft="20dp"
-            android:background="?android:attr/colorButtonNormal"
-            app:layout_constraintLeft_toRightOf="@id/vitamin_button_1"
-            app:layout_constraintTop_toTopOf="@id/vitamin_button_1"
-            />
-
-        <Button
-            android:id="@+id/bathbutton1"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="@string/bath"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:background="?android:attr/colorButtonNormal"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iron_button_1"
-            />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:id="@+id/inexiumbutton1"
-            android:text="@string/inexium"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:background="?android:attr/colorButtonNormal"
-            app:layout_constraintLeft_toRightOf="@id/bathbutton1"
-            app:layout_constraintTop_toBottomOf="@id/iron_button_1"/>
-
-        <TextView
-            android:id="@+id/twin2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="@string/twin2_name"
-            android:textColor="?attr/actionMenuTextColor"
-            android:textSize="12pt"
-            android:textStyle="bold"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/bathbutton1" />
-
-        <ImageView
-            android:id="@+id/twin2photo"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@mipmap/ic_launcher"
-            app:layout_constraintTop_toTopOf="@id/twin2"
-            app:layout_constraintRight_toLeftOf="parent"
-            android:layout_marginRight="20dp"/>
-
-        <TextView
-            android:id="@+id/last2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="10dp"
-            android:text="@string/last"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/twin2" />
-
-        <TextView
-            android:id="@+id/last2_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="@id/last2"
-            app:layout_constraintTop_toTopOf="@id/last2" />
-
-        <Button
-            android:id="@+id/start_button_2"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:background="?attr/colorButtonNormal"
-            android:text="@string/start"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/last2" />
-
-        <Button
-            android:id="@+id/stop_button_2"
-            android:layout_width="100dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="10dp"
-            android:background="?attr/colorAccent"
-            android:text="@string/stop"
-            app:layout_constraintLeft_toRightOf="@id/start_button_2"
-            app:layout_constraintTop_toTopOf="@id/start_button_2" />
+            <Button
+                android:id="@+id/stop_button_1"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:background="?attr/colorAccent"
+                android:text="@string/stop"
+                app:layout_constraintLeft_toRightOf="@id/start_button_1"
+                app:layout_constraintTop_toTopOf="@+id/start_button_1" />
 
 
-        <TextView
-            android:id="@+id/current_timer_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="@id/stop_button_2"
-            app:layout_constraintTop_toTopOf="@id/stop_button_2" />
+            <TextView
+                android:id="@+id/current_timer_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="@id/stop_button_1"
+                app:layout_constraintTop_toTopOf="@id/stop_button_1" />
 
-        <TextView
-            android:id="@+id/current_duration_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:textSize="10pt"
-            app:layout_constraintLeft_toRightOf="@id/current_timer_2"
-            app:layout_constraintTop_toTopOf="@id/current_timer_2" />
+            <TextView
+                android:id="@+id/current_duration_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="@id/current_timer_1"
+                app:layout_constraintTop_toTopOf="@id/current_timer_1" />
 
-        <Button
-            android:id="@+id/vitamin_button_2"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="@string/vitamin"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:background="?android:attr/colorButtonNormal"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/stop_button_2"/>
+            <Button
+                android:id="@+id/vitamin_button_1"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:background="?android:attr/colorButtonNormal"
+                android:text="@string/vitamin"
+                app:layout_constraintLeft_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/stop_button_1" />
 
-        <Button
-            android:id="@+id/iron_button_2"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="@string/iron"
-            android:layout_marginLeft="20dp"
-            android:background="?android:attr/colorButtonNormal"
-            app:layout_constraintLeft_toRightOf="@id/vitamin_button_2"
-            app:layout_constraintTop_toTopOf="@id/vitamin_button_2"
-            />
+            <Button
+                android:id="@+id/bathbutton1"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:background="?android:attr/colorButtonNormal"
+                android:text="@string/bath"
+                app:layout_constraintLeft_toRightOf="@id/vitamin_button_1"
+                app:layout_constraintTop_toBottomOf="@id/stop_button_1" />
 
-        <Button
-            android:id="@+id/bathbutton2"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="@string/bath"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:background="?android:attr/colorButtonNormal"
-            app:layout_constraintLeft_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iron_button_2"
-            />
+            <Button
+                android:id="@+id/inexiumbutton1"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:background="?android:attr/colorButtonNormal"
+                android:text="@string/inexium"
+                app:layout_constraintLeft_toRightOf="@id/bathbutton1"
+                app:layout_constraintTop_toBottomOf="@id/stop_button_1" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:id="@+id/inexiumbutton2"
-            android:text="@string/inexium"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:background="?android:attr/colorButtonNormal"
-            app:layout_constraintLeft_toRightOf="@id/bathbutton2"
-            app:layout_constraintTop_toBottomOf="@id/iron_button_2"/>
+            <TextView
+                android:id="@+id/twin2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="@string/twin2_name"
+                android:textColor="?attr/actionMenuTextColor"
+                android:textSize="12pt"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/bathbutton1" />
+
+            <ImageView
+                android:id="@+id/twin2photo"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginRight="20dp"
+                android:src="@mipmap/ic_launcher"
+                app:layout_constraintRight_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="@id/twin2" />
+
+            <TextView
+                android:id="@+id/last2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/last"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/twin2" />
+
+            <TextView
+                android:id="@+id/last2_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="@id/last2"
+                app:layout_constraintTop_toTopOf="@id/last2" />
+
+            <TextView
+                android:id="@+id/prelast2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/prelast"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/last2" />
+
+            <TextView
+                android:id="@+id/prelast2_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="@id/prelast2"
+                app:layout_constraintTop_toTopOf="@id/prelast2" />
 
 
+            <Button
+                android:id="@+id/start_button_2"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:background="?attr/colorButtonNormal"
+                android:text="@string/start"
+                app:layout_constraintLeft_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/prelast2" />
 
-    </android.support.constraint.ConstraintLayout>
+            <Button
+                android:id="@+id/stop_button_2"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:background="?attr/colorAccent"
+                android:text="@string/stop"
+                app:layout_constraintLeft_toRightOf="@id/start_button_2"
+                app:layout_constraintTop_toTopOf="@id/start_button_2" />
+
+
+            <TextView
+                android:id="@+id/current_timer_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="@id/stop_button_2"
+                app:layout_constraintTop_toTopOf="@id/stop_button_2" />
+
+            <TextView
+                android:id="@+id/current_duration_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:textSize="10pt"
+                app:layout_constraintLeft_toRightOf="@id/current_timer_2"
+                app:layout_constraintTop_toTopOf="@id/current_timer_2" />
+
+            <Button
+                android:id="@+id/vitamin_button_2"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:background="?android:attr/colorButtonNormal"
+                android:text="@string/vitamin"
+                app:layout_constraintLeft_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/stop_button_2" />
+
+            <Button
+                android:id="@+id/bathbutton2"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:background="?android:attr/colorButtonNormal"
+                android:text="@string/bath"
+                app:layout_constraintLeft_toRightOf="@id/vitamin_button_2"
+                app:layout_constraintTop_toBottomOf="@id/start_button_2" />
+
+            <Button
+                android:id="@+id/inexiumbutton2"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:background="?android:attr/colorButtonNormal"
+                android:text="@string/inexium"
+                app:layout_constraintLeft_toRightOf="@id/bathbutton2"
+                app:layout_constraintTop_toBottomOf="@id/start_button_2" />
+
+
+        </android.support.constraint.ConstraintLayout>
     </ScrollView>
 
     <ListView

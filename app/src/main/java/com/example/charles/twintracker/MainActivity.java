@@ -16,7 +16,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -60,8 +59,8 @@ public class MainActivity extends AppCompatActivity {
     //Main class of the app
 
     //standard UI items
-    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,ironBttn1,ironBttn2,bathBttn1,bathBttn2,inexiumBttn1,inexiumBttn2;
-    TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtCurrentDuration1,txtCurrentDuration2,twin1label, twin2label;
+    Button strtBttn1,strtBttn2,stopBttn1,stopBttn2,vitaminBttn1,vitaminBttn2,bathBttn1,bathBttn2,inexiumBttn1,inexiumBttn2;
+    TextView txtLastDate1,txtLastDate2,txtCurrentCount1,txtCurrentCount2,txtCurrentDuration1,txtCurrentDuration2,twin1label, twin2label, txtPrelast1,txtPrelast2;
     String photopath1,photopath2;
     ImageView photo1,photo2;
 
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String GET_INEXIUM_DATA_URL = "http://japansio.info/api/inexium.json";
     public static final String PUT_BATH_DATA_URL = "http://japansio.info/api/putbathdata.php";
     public static final String GET_BATH_DATA_URL = "http://japansio.info/api/bath.json";
-    public static final String PUT_IRON_DATA_URL = "http://japansio.info/api/putirondata.php";
+//    public static final String PUT_IRON_DATA_URL = "http://japansio.info/api/putirondata.php";
     public static final String GET_IRON_DATA_URL = "http://japansio.info/api/iron.json";
     public static final String GET_LIVEFEED_DATA_URL = "http://japansio.info/api/livefeed.json";
     public static final String PUT_LIVEFEED_DATA_URL = "http://japansio.info/api/putlivefeed.php";
@@ -178,8 +177,6 @@ public class MainActivity extends AppCompatActivity {
         stopBttn2.setEnabled(true);
         vitaminBttn1.setEnabled(true);
         vitaminBttn2.setEnabled(true);
-        ironBttn1.setEnabled(true);
-        ironBttn2.setEnabled(true);
         bathBttn1.setEnabled(true);
         bathBttn2.setEnabled(true);
         inexiumBttn1.setEnabled(true);
@@ -212,8 +209,6 @@ public class MainActivity extends AppCompatActivity {
         stopBttn2.setEnabled(false);
         vitaminBttn1.setEnabled(false);
         vitaminBttn2.setEnabled(false);
-        ironBttn1.setEnabled(false);
-        ironBttn2.setEnabled(false);
         bathBttn1.setEnabled(false);
         bathBttn2.setEnabled(false);
         inexiumBttn2.setEnabled(false);
@@ -528,6 +523,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             txtLastDate1.setText(a1);
+            txtPrelast1.setText(a2);
 
             //Fetch latest data for Twin2 (Zoé) and the one before that
             String z1 = "";
@@ -542,6 +538,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             txtLastDate2.setText(z1);
+            txtPrelast2.setText(z2);
 
             progress +=30;
             String progresstext = progress+"%";
@@ -599,24 +596,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            //Display the data on the Iron button : same day but one count is grey, same day and two counts is blue, previous or other day is red
-            if(currentiron1!=null) {
-                String bouton1 = "  Fer : " + currentiron1.getDay() + " (" + currentiron1.getCount() + ")  ";
-                ironBttn1.setText(bouton1);
-
-                if(!currentiron1.getDay().equals(aujourdhui)) {
-                    ironBttn1.setBackgroundResource(R.color.colorAccent);
-                }
-                else {
-                    if(currentiron1.getCount() == 2) {
-                        ironBttn1.setBackgroundResource(R.color.colorPrimary);
-                    }
-                    if(currentiron1.getCount() == 1) {
-                        ironBttn1.setBackgroundResource(R.color.colorNormal);
-                    }
-                }
-            }
-
             //Fetch latest iron data for Twin2 (Zoé)
 
             for(int j =0; j<f; j++)
@@ -628,23 +607,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            //Display the data on the Iron button : same day but one count is grey, same day and two counts is blue, previous or other day is red
-            if(currentiron2!=null) {
-                String bouton2 = "  Fer : " + currentiron2.getDay() + " (" + currentiron2.getCount() + ")  ";
-                ironBttn2.setText(bouton2);
-
-                if(!currentiron2.getDay().equals(aujourdhui)) {
-                    ironBttn2.setBackgroundResource(R.color.colorAccent);
-                }
-                else {
-                    if(currentiron2.getCount() == 2) {
-                        ironBttn2.setBackgroundResource(R.color.colorPrimary);
-                    }
-                    if(currentiron2.getCount() == 1) {
-                        ironBttn2.setBackgroundResource(R.color.colorNormal);
-                    }
-                }
-            }
 
             progress +=20;
             String progresstext = progress+"%";
@@ -1457,8 +1419,6 @@ public class MainActivity extends AppCompatActivity {
         stopBttn2 = (Button)findViewById(R.id.stop_button_2);
         vitaminBttn1 = (Button)findViewById(R.id.vitamin_button_1);
         vitaminBttn2 = (Button)findViewById(R.id.vitamin_button_2);
-        ironBttn1 = (Button)findViewById(R.id.iron_button_1);
-        ironBttn2 = (Button)findViewById(R.id.iron_button_2);
         bathBttn1 = (Button)findViewById(R.id.bathbutton1);
         bathBttn2 = (Button)findViewById(R.id.bathbutton2);
         inexiumBttn1 = (Button)findViewById(R.id.inexiumbutton1);
@@ -1471,6 +1431,9 @@ public class MainActivity extends AppCompatActivity {
         txtCurrentCount2 = (TextView)findViewById(R.id.current_timer_2);
         txtLastDate1 = (TextView)findViewById(R.id.last1_time);
         txtLastDate2 = (TextView)findViewById(R.id.last2_time);
+
+        txtPrelast1 = (TextView)findViewById(R.id.prelast1_time);
+        txtPrelast2 = (TextView)findViewById(R.id.prelast2_time);
 
         txtCurrentDuration1 = (TextView)findViewById(R.id.current_duration_1);
         txtCurrentDuration2 = (TextView)findViewById(R.id.current_duration_2);
@@ -1563,168 +1526,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"Pas de Connection Internet",Toast.LENGTH_LONG).show();
         }
 
-
-        // Click handler for the Iron Input button for twin 1 Adds 1 count to the current day to reach a maximum of 2. Sends the data to the API
-        ironBttn1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Calendar calendar = Calendar.getInstance();
-                SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
-                String jourfer = joursemaine.format(calendar.getTime());
-
-                if(currentiron1 != null && currentiron1.getDay().equals(jourfer)) {
-                    if(currentiron1.getCount() ==2) {
-                        //nothing to do but inform the user if iron was already given twice today
-                        Toast.makeText(getApplicationContext(), "Fer déjà donné 2 fois aujourd'hui", Toast.LENGTH_LONG).show();
-                    }
-                    if(currentiron1.getCount() ==1) {
-                        //Iron was given only once today : update today's data with incremented iron counter
-                        currentiron1.setCount(2);
-                        ironinputs.get(ironindex1).setCount(2);
-                        String bouton1 = "  Fer : " + currentiron1.getDay() + " (" + currentiron1.getCount() +")  ";
-                        ironBttn1.setText(bouton1);
-                        ironBttn1.setBackgroundResource(R.color.colorPrimary);
-                        String json = new Gson().toJson(ironinputs);
-
-                        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-                        if (networkInfo != null && networkInfo.isConnected()) {
-                            //send new day to server if network is available
-                            new UploadDataTask().execute(PUT_IRON_DATA_URL, json);
-                            Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
-
-                            //force update of iron data just after input to handle index rebuilding and avoid duplication in case of double press
-                            ironinputs.clear();
-                            new DownloadWebpageTask(new AsyncResult() {
-                                @Override
-                                public void onResult(JSONArray object) {
-                                    processJsonIron(object);
-                                }
-                            }).execute(GET_IRON_DATA_URL);
-                        }
-                        if (networkInfo == null || !networkInfo.isConnected()) {
-                            //inform user if network is not available
-                            Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                }
-                else {
-
-                    //first Iron input of the day : create new data entry for today
-                    iron ironjour1 = new iron("agathe",jourfer,1);
-                    ironinputs.add(ironjour1);
-                    String json = new Gson().toJson(ironinputs);
-
-                    String bouton1 = "  Fer : " + jourfer + " (1)  ";
-
-                    ironBttn1.setText(bouton1);
-                    ironBttn1.setBackgroundResource(R.color.colorNormal);
-
-                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-                    if (networkInfo != null && networkInfo.isConnected()) {
-                        //send new day to server if network is available
-                        new UploadDataTask().execute(PUT_IRON_DATA_URL, json);
-                        Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
-                        //force update of iron data just after input to handle index rebuilding and avoid duplication in case of double press
-                        ironinputs.clear();
-                        new DownloadWebpageTask(new AsyncResult() {
-                            @Override
-                            public void onResult(JSONArray object) {
-                                processJsonIron(object);
-                            }
-                        }).execute(GET_IRON_DATA_URL);
-                    }
-                    if (networkInfo == null || !networkInfo.isConnected()) {
-                        //inform user if network is not available
-                        Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-        });
-
-
-        //same as ironBttn1
-        ironBttn2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Calendar calendar = Calendar.getInstance();
-                SimpleDateFormat joursemaine = new SimpleDateFormat("EEEE", Locale.FRANCE);
-                String jourfer = joursemaine.format(calendar.getTime());
-
-                if(currentiron2!=null && currentiron2.getDay().equals(jourfer)) {
-                    if(currentiron2.getCount() ==2) {
-                        //nothing to do but inform the user if vitamins were already given today
-                        Toast.makeText(getApplicationContext(), "Fer déjà donné 2 fois aujourd'hui", Toast.LENGTH_LONG).show();
-                    }
-                    if(currentiron2.getCount() ==1) {
-                        currentiron2.setCount(2);
-                        ironinputs.get(ironindex2).setCount(2);
-                        String json = new Gson().toJson(ironinputs);
-
-                        String bouton2 = "  Fer : " + currentiron2.getDay() + " (" + currentiron2.getCount() +")  ";
-                        ironBttn2.setText(bouton2);
-                        ironBttn2.setBackgroundResource(R.color.colorPrimary);
-
-                        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-                        if (networkInfo != null && networkInfo.isConnected()) {
-                            //send new day to server if network is available
-                            new UploadDataTask().execute(PUT_IRON_DATA_URL, json);
-                            Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
-                            //force update of iron data just after input to handle index rebuilding and avoid duplication in case of double press
-                            ironinputs.clear();
-                            new DownloadWebpageTask(new AsyncResult() {
-                                @Override
-                                public void onResult(JSONArray object) {
-                                    processJsonIron(object);
-                                }
-                            }).execute(GET_IRON_DATA_URL);
-                        }
-                        if (networkInfo == null || !networkInfo.isConnected()) {
-                            //inform user if network is not available
-                            Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                }
-                else {
-                    iron ironjour2 = new iron("zoé",jourfer,1);
-                    ironinputs.add(ironjour2);
-                    String json = new Gson().toJson(ironinputs);
-
-                    String bouton2 = "  Fer : " + jourfer + " (1)  ";
-
-                    ironBttn2.setText(bouton2);
-                    ironBttn2.setBackgroundResource(R.color.colorNormal);
-
-                    ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-                    if (networkInfo != null && networkInfo.isConnected()) {
-                        //send new day to server if network is available
-                        new UploadDataTask().execute(PUT_IRON_DATA_URL, json);
-                        Toast.makeText(getApplicationContext(), "Donnée Enregistrée", Toast.LENGTH_SHORT).show();
-                        //force update of iron data just after input to handle index rebuilding and avoid duplication in case of double press
-                        ironinputs.clear();
-                        new DownloadWebpageTask(new AsyncResult() {
-                            @Override
-                            public void onResult(JSONArray object) {
-                                processJsonIron(object);
-                            }
-                        }).execute(GET_IRON_DATA_URL);
-                    }
-                    if (networkInfo == null || !networkInfo.isConnected()) {
-                        //inform user if network is not available
-                        Toast.makeText(getApplicationContext(), "Pas de Connection Internet", Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-        });
 
         //Bath Button 1 Click sends today's date to the server unless current day is already the latest data
         bathBttn1.setOnClickListener(new View.OnClickListener() {
@@ -2238,6 +2039,7 @@ public class MainActivity extends AppCompatActivity {
                                         timer1.cancel();
                                         timer1 = null;
                                         String lastdate1 = txtCurrentCount1.getText().toString() + "  " + txtCurrentDuration1.getText().toString();
+                                        txtPrelast1.setText(txtLastDate1.getText());
                                         txtLastDate1.setText(lastdate1);
 
                                         feedings.add(new feeding("agathe", txtCurrentCount1.getText().toString(), txtCurrentDuration1.getText().toString()));
@@ -2349,6 +2151,7 @@ public class MainActivity extends AppCompatActivity {
                                     timer2 = null;
 
                                     String lastdate2 = txtCurrentCount2.getText().toString()+"  "+txtCurrentDuration2.getText().toString();
+                                    txtPrelast2.setText(txtLastDate2.getText());
                                     txtLastDate2.setText(lastdate2);
 
                                     feedings.add(new feeding("zoé",txtCurrentCount2.getText().toString(),txtCurrentDuration2.getText().toString()));
