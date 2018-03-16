@@ -7,8 +7,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ShortcutInfo;
-import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -923,27 +921,6 @@ public class MainActivity extends AppCompatActivity {
                     twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1, liveTwin1.getStartTime() ,liveTwin1.getStartDate());
                     timer1.schedule(twinTimerTask1, 1000, 1000);
                     strtBttn1.setText(R.string.pause);
-
-                    //change shortcut labels
-
-                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-
-                    Intent twin1Intent = new Intent();
-                    twin1Intent.putExtra("stopTwin1", true);
-                    twin1Intent.putExtra("stopTwin2", false);
-                    twin1Intent.setClass(getApplicationContext(), MainActivity.class);
-                    twin1Intent.setAction(Intent.ACTION_VIEW);
-                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin1")
-                            .setShortLabel(twin1label.getText())
-                            .setLongLabel("Stopper "+twin1label.getText())
-                            .setIntent(twin1Intent)
-                            .build();
-
-                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
-
                 }
             }
 
@@ -957,25 +934,6 @@ public class MainActivity extends AppCompatActivity {
                     txtCurrentDuration1.setText("");
                     strtBttn1.setText(R.string.start);
 
-                    //change shortcut labels
-
-                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-
-                    Intent twin1Intent = new Intent();
-                    twin1Intent.putExtra("startTwin1", true);
-                    twin1Intent.putExtra("startTwin2", false);
-                    twin1Intent.setClass(getApplicationContext(), MainActivity.class);
-                    twin1Intent.setAction(Intent.ACTION_VIEW);
-                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin1")
-                            .setShortLabel(twin1label.getText())
-                            .setLongLabel("Nourrir "+twin1label.getText())
-                            .setIntent(twin1Intent)
-                            .build();
-
-                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
                 }
             }
 
@@ -987,25 +945,6 @@ public class MainActivity extends AppCompatActivity {
                     txtCurrentDuration2.setText("");
                     strtBttn2.setText(R.string.start);
 
-                    //change shortcut labels
-
-                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-
-                    Intent twin2Intent = new Intent();
-                    twin2Intent.putExtra("startTwin1", false);
-                    twin2Intent.putExtra("startTwin2", true);
-                    twin2Intent.setClass(getApplicationContext(), MainActivity.class);
-                    twin2Intent.setAction(Intent.ACTION_VIEW);
-                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin2")
-                            .setShortLabel(twin2label.getText())
-                            .setLongLabel("Nourrir "+twin2label.getText())
-                            .setIntent(twin2Intent)
-                            .build();
-
-                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
                 }
             }
 
@@ -1018,26 +957,6 @@ public class MainActivity extends AppCompatActivity {
                     twinTimerTask2 = new TwinTimerTask(txtCurrentCount2, txtCurrentDuration2, liveTwin2.getStartTime() ,liveTwin2.getStartDate());
                     timer2.schedule(twinTimerTask2, 1000, 1000);
                     strtBttn2.setText(R.string.pause);
-
-                    //change shortcut labels
-
-                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-
-                    Intent twin2Intent = new Intent();
-                    twin2Intent.putExtra("stopTwin1", false);
-                    twin2Intent.putExtra("stopTwin2", true);
-                    twin2Intent.setClass(getApplicationContext(), MainActivity.class);
-                    twin2Intent.setAction(Intent.ACTION_VIEW);
-                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin2")
-                            .setShortLabel(twin2label.getText())
-                            .setLongLabel("Stopper "+twin2label.getText())
-                            .setIntent(twin2Intent)
-                            .build();
-
-                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
                 }
             }
 
@@ -1159,7 +1078,6 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = BitmapFactory.decodeFile(photopath1, bmOptions);
         photo1.setImageBitmap(bitmap);
-        ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
 
         Intent twin1Intent = new Intent();
         twin1Intent.putExtra("startTwin1", true);
@@ -1168,17 +1086,6 @@ public class MainActivity extends AppCompatActivity {
         twin1Intent.setAction(Intent.ACTION_VIEW);
         twin1Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         twin1Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        ShortcutInfo shortcut = new ShortcutInfo.Builder(this, "twin1")
-                .setShortLabel(twin1label.getText())
-                .setLongLabel("Nourrir "+twin1label.getText())
-                .setIcon(Icon.createWithBitmap(bitmap))
-                .setIntent(twin1Intent)
-                .build();
-
-        shortcutManager.addDynamicShortcuts(Arrays.asList(shortcut));
-
-
     }
 
 
@@ -1204,26 +1111,6 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap bitmap = BitmapFactory.decodeFile(photopath2, bmOptions);
         photo2.setImageBitmap(bitmap);
-
-        ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-
-        Intent twin2Intent = new Intent();
-        twin2Intent.putExtra("startTwin2", true);
-        twin2Intent.putExtra("startTwin1", false);
-        twin2Intent.setClass(this, MainActivity.class);
-        twin2Intent.setAction(Intent.ACTION_VIEW);
-        twin2Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        twin2Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        ShortcutInfo shortcut = new ShortcutInfo.Builder(this, "twin2")
-                .setShortLabel(twin2label.getText())
-                .setLongLabel("Nourrir "+twin2label.getText())
-                .setIcon(Icon.createWithBitmap(bitmap))
-                .setIntent(twin2Intent)
-                .build();
-
-        shortcutManager.addDynamicShortcuts(Arrays.asList(shortcut));
-
     }
 
 
@@ -1847,27 +1734,6 @@ public class MainActivity extends AppCompatActivity {
                     //start
                     timer1 = new Timer();
 
-                    //change shortcut labels
-
-                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-
-                    Intent twin1Intent = new Intent();
-                    twin1Intent.putExtra("stopTwin1", true);
-                    twin1Intent.putExtra("stopTwin2", false);
-                    twin1Intent.setClass(getApplicationContext(), MainActivity.class);
-                    twin1Intent.setAction(Intent.ACTION_VIEW);
-                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    twin1Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin1")
-                            .setShortLabel(twin1label.getText())
-                            .setLongLabel("Stopper "+twin1label.getText())
-                            .setIntent(twin1Intent)
-                            .build();
-
-                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
-
-
                     long now = System.currentTimeMillis();
                     twinTimerTask1 = new TwinTimerTask(txtCurrentCount1, txtCurrentDuration1);
                     timer1.schedule(twinTimerTask1, 1000, 1000);
@@ -1948,26 +1814,6 @@ public class MainActivity extends AppCompatActivity {
                     //start
                     timer2 = new Timer();
 
-
-                    //change shortcut labels
-
-                    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-
-                    Intent twin2Intent = new Intent();
-                    twin2Intent.putExtra("stopTwin1", false);
-                    twin2Intent.putExtra("stopTwin1", true);
-                    twin2Intent.setClass(getApplicationContext(), MainActivity.class);
-                    twin2Intent.setAction(Intent.ACTION_VIEW);
-                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    twin2Intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                    ShortcutInfo shortcut = new ShortcutInfo.Builder(getApplicationContext(), "twin2")
-                            .setShortLabel(twin2label.getText())
-                            .setLongLabel("Stopper "+twin2label.getText())
-                            .setIntent(twin2Intent)
-                            .build();
-
-                    shortcutManager.updateShortcuts(Arrays.asList(shortcut));
 
 
                     long now = System.currentTimeMillis();
